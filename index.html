@@ -34,10 +34,6 @@
         display: none !important;
     }
     
-    .mobile-only {
-        display: block;
-    }
-    
     h1 {
         text-align: center;
         color: #2E7D32;
@@ -207,14 +203,6 @@
     
     /* ===== DESKTOP STYLES ===== */
     @media (min-width: 769px) {
-        .desktop-only {
-            display: block !important;
-        }
-        
-        .mobile-only {
-            display: none !important;
-        }
-        
         body {
             padding: 20px;
         }
@@ -297,25 +285,14 @@
         from { transform: translateX(0); opacity: 1; }
         to { transform: translateX(100%); opacity: 0; }
     }
-    
-    /* Desktop-specific animations */
-    @media (min-width: 769px) {
-        .server-btn {
-            box-shadow: 0 4px 8px rgba(33,150,243,0.3);
-        }
-        
-        .server-btn:hover {
-            box-shadow: 0 6px 12px rgba(33,150,243,0.4);
-        }
-    }
     </style>
 </head>
 
 <body>
-    <!-- ===== HEADER SECTION (Same for both) ===== -->
+    <!-- ===== HEADER SECTION ===== -->
     <h1>🌱 EET Agri IOT</h1>
     <hr>
-    <h2 id="app-title">ESP32 Sensor Module</h2>
+    <h2>ESP32 Sensor Module</h2>
 
     <!-- ===== NPK NUTRIENTS SECTION ===== -->
     <div class="table-container">
@@ -348,11 +325,7 @@
 
     <!-- ===== ADDITIONAL SENSORS SECTION ===== -->
     <div class="table-container">
-        <!-- Mobile Title -->
-        <h3 class="mobile-only">Additional Sensors</h3>
-        <!-- Desktop Title -->
-        <h3 class="desktop-only" style="display: none;">Additional Sensors</h3>
-        
+        <h3>Additional Sensors</h3>
         <div class="table-wrapper">
             <table>
                 <tr>
@@ -380,8 +353,8 @@
                     <td>°C</td>
                     <td id="temperature-value"></td>
                 </tr>
-                <!-- Desktop-only row -->
-                <tr class="desktop-only" style="display: none;">
+                <!-- Weight row - SAME FOR BOTH -->
+                <tr>
                     <td>Weight</td>
                     <td>kg</td>
                     <td id="weight-value"></td>
@@ -414,34 +387,11 @@
 
     <!-- ===== JAVASCRIPT ===== -->
     <script>
-    // ===== CONFIGURATION =====
-    const CONFIG = {
-        // Sensor data (you can update these from your ESP32)
-        defaultValues: {
-            nitrogen: "25",
-            phosphorus: "15",
-            potassium: "120",
-            conductivity: "250",
-            ph: "6.8",
-            moisture: "45",
-            temperature: "22.5",
-            weight: "2.5"
-        },
-        
-        // Server settings
-        defaultServerUrl: "http://192.168.1.100",
-        
-        // Update intervals (in milliseconds)
-        dataUpdateInterval: 5000, // 5 seconds
-        serverCheckInterval: 300000 // 5 minutes
-    };
-
     // ===== DOM ELEMENTS =====
     const serverCheckBtn = document.getElementById('serverCheckBtn');
     const statusText = document.getElementById('statusText');
     const lastChecked = document.getElementById('lastChecked');
     const serverUrlInput = document.getElementById('serverUrl');
-    const appTitle = document.getElementById('app-title');
     
     // Sensor value elements
     const sensorElements = {
@@ -459,61 +409,61 @@
     function initializeApp() {
         console.log("🌱 EET Agri IOT App Initializing...");
         
-        // Set default sensor values
-        updateSensorValues(CONFIG.defaultValues);
-        
         // Set default server URL
-        serverUrlInput.value = CONFIG.defaultServerUrl;
+        serverUrlInput.value = "http://192.168.1.100";
         
-        // Update app title based on device
-        updateAppTitle();
+        // Clear all sensor values (no fake data)
+        Object.values(sensorElements).forEach(el => {
+            el.textContent = "";
+        });
         
-        // Start periodic updates
-        startDataUpdates();
-        
-        // Check server on load (optional)
-        // setTimeout(checkServer, 1000);
+        // Load real data from server (if available)
+        loadRealData();
     }
 
-    // ===== SENSOR DATA FUNCTIONS =====
-    function updateSensorValues(data) {
-        // Update NPK values
-        sensorElements.nitrogen.textContent = data.nitrogen || CONFIG.defaultValues.nitrogen;
-        sensorElements.phosphorus.textContent = data.phosphorus || CONFIG.defaultValues.phosphorus;
-        sensorElements.potassium.textContent = data.potassium || CONFIG.defaultValues.potassium;
-        
-        // Update additional sensors
-        sensorElements.conductivity.textContent = data.conductivity || CONFIG.defaultValues.conductivity;
-        sensorElements.ph.textContent = data.ph || CONFIG.defaultValues.ph;
-        sensorElements.moisture.textContent = data.moisture || CONFIG.defaultValues.moisture;
-        sensorElements.temperature.textContent = data.temperature || CONFIG.defaultValues.temperature;
-        
-        // Weight only shown on desktop
-        if (sensorElements.weight) {
-            sensorElements.weight.textContent = data.weight || CONFIG.defaultValues.weight;
-        }
-        
-        console.log("📊 Sensor values updated");
-    }
-
-    function startDataUpdates() {
-        // Simulate data updates (replace with real ESP32 API calls)
-        setInterval(() => {
-            // Simulate sensor data changes
-            const simulatedData = {
-                nitrogen: Math.floor(Math.random() * 50 + 20).toString(),
-                phosphorus: Math.floor(Math.random() * 30 + 10).toString(),
-                potassium: Math.floor(Math.random() * 200 + 100).toString(),
-                conductivity: Math.floor(Math.random() * 500 + 200).toString(),
-                ph: (Math.random() * 2 + 6).toFixed(1),
-                moisture: Math.floor(Math.random() * 50 + 30).toString(),
-                temperature: (Math.random() * 10 + 20).toFixed(1),
-                weight: (Math.random() * 3 + 2).toFixed(1)
-            };
+    // ===== REAL DATA FUNCTIONS =====
+    async function loadRealData() {
+        try {
+            const serverUrl = serverUrlInput.value.trim();
+            if (!serverUrl) return;
             
-            updateSensorValues(simulatedData);
-            console.log("🔄 Sensor data refreshed");
-        }, CONFIG.dataUpdateInterval);
+            console.log("📡 Fetching real sensor data...");
+            
+            // REAL API CALL TO ESP32
+            // Uncomment when your ESP32 API is ready:
+            /*
+            const response = await fetch(`${serverUrl}/api/sensors`, {
+                method: 'GET',
+                headers: {
+                    'Accept': 'application/json'
+                },
+                timeout: 3000
+            });
+            
+            if (response.ok) {
+                const data = await response.json();
+                updateSensorValues(data);
+            }
+            */
+            
+        } catch (error) {
+            console.log("⚠️ Could not load data:", error.message);
+            // Keep values empty - no fake data
+        }
+    }
+
+    function updateSensorValues(data) {
+        // Update values ONLY if data exists
+        if (data.nitrogen !== undefined) sensorElements.nitrogen.textContent = data.nitrogen;
+        if (data.phosphorus !== undefined) sensorElements.phosphorus.textContent = data.phosphorus;
+        if (data.potassium !== undefined) sensorElements.potassium.textContent = data.potassium;
+        if (data.conductivity !== undefined) sensorElements.conductivity.textContent = data.conductivity;
+        if (data.ph !== undefined) sensorElements.ph.textContent = data.ph;
+        if (data.moisture !== undefined) sensorElements.moisture.textContent = data.moisture;
+        if (data.temperature !== undefined) sensorElements.temperature.textContent = data.temperature;
+        if (data.weight !== undefined) sensorElements.weight.textContent = data.weight;
+        
+        console.log("📊 Real sensor values updated");
     }
 
     // ===== SERVER FUNCTIONS =====
@@ -559,52 +509,34 @@
         serverCheckBtn.disabled = true;
         
         try {
-            const url = serverUrlInput.value.trim() || CONFIG.defaultServerUrl;
+            const url = serverUrlInput.value.trim();
             
-            // REAL API CALL (uncomment when ready)
-            /*
+            if (!url) {
+                throw new Error("Please enter server URL");
+            }
+            
+            // REAL SERVER CHECK
             const response = await fetch(url, {
                 method: 'GET',
-                mode: 'cors',
+                mode: 'no-cors', // For ESP32 local server
                 headers: {
                     'Accept': 'application/json'
-                },
-                timeout: 5000
+                }
             });
             
-            if (response.ok) {
-                updateServerStatus('online', 'Online & Connected');
-                showNotification('✅ Server is online!', 'success');
-                
-                // If server returns data, update sensors
-                const data = await response.json();
-                updateSensorValues(data);
-            } else {
-                throw new Error(`HTTP ${response.status}`);
-            }
-            */
+            // With no-cors mode, we can't read response, but fetch won't reject
+            // If we get here, server is probably reachable
+            updateServerStatus('online', 'Online & Connected');
+            showNotification('✅ Server is online!', 'success');
             
-            // SIMULATION (remove when using real API)
-            setTimeout(() => {
-                const randomSuccess = Math.random() > 0.3;
-                
-                if (randomSuccess) {
-                    updateServerStatus('online', 'Online & Connected');
-                    showNotification('✅ Server is online!', 'success');
-                } else {
-                    updateServerStatus('offline', 'Offline - Server not reachable');
-                    showNotification('❌ Cannot connect to server', 'error');
-                }
-                
-                serverCheckBtn.innerHTML = originalText;
-                serverCheckBtn.disabled = false;
-            }, 1500);
+            // Try to load real data after successful connection
+            loadRealData();
             
         } catch (error) {
             updateServerStatus('offline', `Error: ${error.message}`);
             showNotification('⚠️ Server check failed', 'warning');
             console.error("Server check error:", error);
-            
+        } finally {
             serverCheckBtn.innerHTML = originalText;
             serverCheckBtn.disabled = false;
         }
@@ -622,11 +554,16 @@
         
         updateServerStatus('checking', `Testing ${url}`);
         
-        // Simulate test (replace with real fetch)
-        setTimeout(() => {
-            updateServerStatus('online', `Custom test: ${url} is reachable`);
-            showNotification(`✅ ${url} is reachable`, 'success');
-        }, 1000);
+        // Real test
+        fetch(url, { method: 'GET', mode: 'no-cors' })
+            .then(() => {
+                updateServerStatus('online', `Custom test: ${url} is reachable`);
+                showNotification(`✅ ${url} is reachable`, 'success');
+            })
+            .catch(error => {
+                updateServerStatus('offline', `Error: ${error.message}`);
+                showNotification(`❌ ${url} is not reachable`, 'error');
+            });
     }
 
     // ===== UI HELPER FUNCTIONS =====
@@ -668,15 +605,6 @@
         }, 3000);
     }
 
-    function updateAppTitle() {
-        // Update title based on device type
-        if (window.innerWidth >= 769) {
-            appTitle.textContent = "ESP32 Sensor Module";
-        } else {
-            appTitle.textContent = "ESP32 NPK Sensor Module";
-        }
-    }
-
     // ===== EVENT LISTENERS =====
     serverCheckBtn.addEventListener('click', checkServer);
 
@@ -685,9 +613,6 @@
             testCustomUrl();
         }
     });
-
-    // Update title on resize
-    window.addEventListener('resize', updateAppTitle);
 
     // Mobile touch feedback
     serverCheckBtn.addEventListener('touchstart', function() {
