@@ -36,6 +36,7 @@
     }
     </style>
 </head>
+
 <body>
 
     <h1>🌱 EET Agri IOT</h1>
@@ -110,4 +111,256 @@
 
 
 </body>
+
+<!-- Server Status Section -->
+<div style="text-align: center; padding: 20px; background-color: #f8fff8; border-radius: 10px; margin: 20px auto; max-width: 800px;">
+
+    <!-- Server Check Button -->
+    <button id="serverCheckBtn" style="
+        background-color: #2196F3;
+        color: white;
+        border: none;
+        padding: 12px 25px;
+        font-size: 16px;
+        border-radius: 8px;
+        cursor: pointer;
+        margin: 10px;
+        box-shadow: 0 4px 8px rgba(33,150,243,0.3);
+        transition: all 0.3s;
+        font-weight: bold;
+    ">
+        🔍 Check Server Connection
+    </button>
+
+    <!-- Server Status Label -->
+    <div id="serverStatus" style="
+        margin-top: 15px;
+        font-size: 16px;
+        padding: 12px 20px;
+        background-color: #e3f2fd;
+        border-radius: 6px;
+        display: inline-block;
+        min-width: 350px;
+        text-align: center;
+        border-left: 4px solid #2196F3;
+    ">
+        <span style="font-weight: bold;">🟡 Server Status:</span> 
+        <span id="statusText">Not checked yet</span>
+        <br>
+        <span style="font-size: 14px; color: #666;">
+            Last checked: <span id="lastChecked">Never</span>
+        </span>
+    </div>
+
+    <!-- Server URL Input (Optional - for testing) -->
+    <div style="margin-top: 20px; font-size: 14px; color: #666;">
+        <label for="serverUrl">Test URL (optional): </label>
+        <input type="text" id="serverUrl" placeholder="http://your-esp32-server.com" 
+               style="padding: 8px; width: 300px; border: 1px solid #ddd; border-radius: 4px;">
+        <button onclick="testCustomUrl()" style="margin-left: 10px; padding: 8px 15px; background: #666; color: white; border: none; border-radius: 4px;">Test</button>
+    </div>
+
+</div>
+
+<script>
+// Server Check Elements
+const serverCheckBtn = document.getElementById('serverCheckBtn');
+const statusText = document.getElementById('statusText');
+const lastChecked = document.getElementById('lastChecked');
+const serverUrlInput = document.getElementById('serverUrl');
+
+// Simulated server URL (replace with your ESP32 server URL)
+const ESP32_SERVER_URL = 'http://192.168.1.100'; // Change this to your ESP32 IP
+
+// Function to update status label
+function updateServerStatus(status, message) {
+    const now = new Date();
+    const timeString = now.toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit',
+        second: '2-digit'
+    });
+    
+    lastChecked.textContent = `${now.toLocaleDateString()} ${timeString}`;
+    statusText.textContent = message;
+    
+    // Update status color
+    const statusDiv = document.getElementById('serverStatus');
+    if (status === 'online') {
+        statusDiv.style.borderLeftColor = '#4CAF50';
+        statusDiv.style.backgroundColor = '#e8f5e9';
+        statusText.innerHTML = '🟢 Online & Connected';
+    } else if (status === 'offline') {
+        statusDiv.style.borderLeftColor = '#f44336';
+        statusDiv.style.backgroundColor = '#ffebee';
+        statusText.innerHTML = '🔴 Offline - Server not reachable';
+    } else if (status === 'checking') {
+        statusDiv.style.borderLeftColor = '#FF9800';
+        statusDiv.style.backgroundColor = '#fff3e0';
+        statusText.innerHTML = '🟡 Checking server...';
+    } else {
+        statusDiv.style.borderLeftColor = '#9E9E9E';
+        statusDiv.style.backgroundColor = '#f5f5f5';
+        statusText.innerHTML = '⚪ Not checked yet';
+    }
+}
+
+// Function to check server (simulated for now)
+async function checkServer() {
+    console.log("🔍 Checking server connection...");
+    
+    // Show checking state
+    updateServerStatus('checking', 'Checking...');
+    
+    const originalText = serverCheckBtn.innerHTML;
+    serverCheckBtn.innerHTML = "⏳ Checking...";
+    serverCheckBtn.disabled = true;
+    
+    // Simulate server check (replace with real fetch)
+    setTimeout(async () => {
+        try {
+            // For now, simulate different outcomes
+            const randomSuccess = Math.random() > 0.3; // 70% success rate for demo
+            
+            if (randomSuccess) {
+                // Simulate successful connection
+                updateServerStatus('online', 'Online & Connected');
+                showNotification('✅ Server is online!', 'success');
+                console.log("Server check: ONLINE");
+            } else {
+                // Simulate failed connection
+                updateServerStatus('offline', 'Offline - Server not reachable');
+                showNotification('❌ Cannot connect to server', 'error');
+                console.log("Server check: OFFLINE");
+            }
+            
+        } catch (error) {
+            updateServerStatus('offline', `Error: ${error.message}`);
+            showNotification('⚠️ Server check failed', 'warning');
+            console.error("Server check error:", error);
+        } finally {
+            // Restore button
+            serverCheckBtn.innerHTML = originalText;
+            serverCheckBtn.disabled = false;
+        }
+    }, 1500); // 1.5 second delay to simulate network request
+}
+
+// Function to test custom URL
+function testCustomUrl() {
+    const url = serverUrlInput.value.trim();
+    if (!url) {
+        showNotification('⚠️ Please enter a URL', 'warning');
+        return;
+    }
+    
+    console.log(`Testing custom URL: ${url}`);
+    showNotification(`Testing ${url}...`, 'info');
+    
+    // Here you would actually test the URL
+    // For now, just update status
+    updateServerStatus('checking', `Testing ${url}`);
+    
+    setTimeout(() => {
+        // Simulate test result
+        updateServerStatus('online', `Custom test: ${url} is reachable`);
+        showNotification(`✅ ${url} is reachable`, 'success');
+    }, 1000);
+}
+
+// Function to show notification (reuse from earlier or create new)
+function showNotification(message, type = 'info') {
+    // Remove existing notification if any
+    const existing = document.getElementById('serverNotification');
+    if (existing) existing.remove();
+    
+    // Colors based on type
+    const colors = {
+        success: '#4CAF50',
+        error: '#f44336',
+        warning: '#FF9800',
+        info: '#2196F3'
+    };
+    
+    const notification = document.createElement('div');
+    notification.id = 'serverNotification';
+    notification.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: ${colors[type] || '#2196F3'};
+        color: white;
+        padding: 12px 20px;
+        border-radius: 6px;
+        box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+        z-index: 1000;
+        font-weight: bold;
+        animation: slideIn 0.3s ease-out;
+    `;
+    notification.textContent = message;
+    
+    document.body.appendChild(notification);
+    
+    // Remove after 3 seconds
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease-out';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// Add CSS animations if not already present
+if (!document.querySelector('#serverAnimations')) {
+    const style = document.createElement('style');
+    style.id = 'serverAnimations';
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+}
+
+// Button click event
+serverCheckBtn.addEventListener('click', checkServer);
+
+// Hover effects
+serverCheckBtn.addEventListener('mouseover', function() {
+    this.style.backgroundColor = '#1976D2';
+    this.style.transform = 'translateY(-2px)';
+    this.style.boxShadow = '0 6px 12px rgba(33,150,243,0.4)';
+});
+
+serverCheckBtn.addEventListener('mouseout', function() {
+    this.style.backgroundColor = '#2196F3';
+    this.style.transform = 'translateY(0)';
+    this.style.boxShadow = '0 4px 8px rgba(33,150,243,0.3)';
+});
+
+// Auto-check server every 5 minutes (optional)
+// setInterval(checkServer, 300000);
+
+// Check server on page load (optional)
+// window.addEventListener('load', function() {
+//     setTimeout(checkServer, 1000);
+// });
+
+// Tooltip
+serverCheckBtn.title = "Check if ESP32 server is reachable";
+
+// Add enter key support for URL input
+serverUrlInput.addEventListener('keypress', function(e) {
+    if (e.key === 'Enter') {
+        testCustomUrl();
+    }
+});
+</script>
+
+
+
+
 </html>
