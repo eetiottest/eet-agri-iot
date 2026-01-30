@@ -15,277 +15,12 @@
     
     <title>EET Agri IOT</title>
     
-    <style>
-    /* ===== BASE STYLES ===== */
-    * {
-        box-sizing: border-box;
-    }
+    <!-- External CSS -->
+    <link rel="stylesheet" href="styles.css">
     
-    body {
-        margin: 0;
-        padding: 0;
-        font-family: -apple-system, BlinkMacSystemFont, sans-serif;
-        background: #f8f9fa;
-        min-height: 100vh;
-    }
-    
-    /* ===== MOBILE STYLES (DEFAULT) ===== */
-    .desktop-only {
-        display: none !important;
-    }
-    
-    h1 {
-        text-align: center;
-        color: #2E7D32;
-        margin: 10px 0;
-        font-size: 24px;
-    }
-    
-    h2 {
-        text-align: center;
-        color: #555;
-        margin: 10px 0 20px 0;
-        font-size: 18px;
-    }
-    
-    hr {
-        border: none;
-        height: 2px;
-        background: #4CAF50;
-        margin: 10px 20px;
-    }
-    
-    /* Tables for Mobile */
-    .table-container {
-        text-align: center;
-        margin: 20px 0;
-    }
-    
-    .table-container h3 {
-        display: inline-block;
-        background: #4CAF50;
-        color: white;
-        padding: 10px 20px;
-        border-radius: 8px;
-        margin: 0 auto 15px auto;
-        font-size: 16px;
-        box-shadow: 0 3px 6px rgba(0,0,0,0.1);
-    }
-    
-    .table-wrapper {
-        overflow-x: auto;
-        -webkit-overflow-scrolling: touch;
-        margin: 0 -10px;
-        padding: 0 10px;
-    }
-    
-    table {
-        width: 100%;
-        min-width: 300px;
-        max-width: 800px;
-        margin: 0 auto;
-        border-collapse: collapse;
-        background: white;
-        border-radius: 8px;
-        overflow: hidden;
-        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
-    }
-    
-    th, td {
-        padding: 10px 8px;
-        text-align: left;
-        font-size: 14px;
-    }
-    
-    th {
-        background-color: #4CAF50;
-        color: white;
-        font-weight: bold;
-        white-space: nowrap;
-    }
-    
-    td {
-        border-bottom: 1px solid #eee;
-    }
-    
-    tr:last-child td {
-        border-bottom: none;
-    }
-    
-    tr:nth-child(even) {
-        background-color: #f9f9f9;
-    }
-    
-    tr:hover {
-        background-color: #e8f5e8;
-    }
-    
-    /* Server Section for Mobile */
-    .server-section {
-        text-align: center;
-        padding: 15px;
-        background-color: #f8fff8;
-        border-radius: 10px;
-        margin: 20px auto;
-        max-width: 800px;
-        width: 100%;
-    }
-    
-    .server-btn {
-        background-color: #2196F3;
-        color: white;
-        border: none;
-        padding: 12px 20px;
-        font-size: 16px;
-        border-radius: 8px;
-        cursor: pointer;
-        margin: 10px auto;
-        width: 100%;
-        max-width: 300px;
-        display: block;
-        font-weight: bold;
-        box-shadow: 0 4px 8px rgba(33,150,243,0.3);
-        transition: all 0.3s;
-    }
-    
-    .server-btn:hover {
-        background-color: #1976D2;
-        transform: translateY(-2px);
-        box-shadow: 0 6px 12px rgba(33,150,243,0.4);
-    }
-    
-    .server-btn:active {
-        transform: translateY(0);
-    }
-    
-    .server-status {
-        margin: 15px auto;
-        font-size: 14px;
-        padding: 12px 15px;
-        background-color: #e3f2fd;
-        border-radius: 6px;
-        width: 100%;
-        max-width: 350px;
-        text-align: center;
-        border-left: 4px solid #2196F3;
-    }
-    
-    .url-input-container {
-        margin-top: 15px;
-        font-size: 14px;
-        color: #666;
-    }
-    
-    .url-input {
-        padding: 10px;
-        width: 100%;
-        max-width: 300px;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        margin: 5px auto;
-        display: block;
-        font-size: 14px;
-    }
-    
-    .test-btn {
-        background: #666;
-        color: white;
-        border: none;
-        padding: 10px 20px;
-        border-radius: 4px;
-        cursor: pointer;
-        margin: 10px auto;
-        width: 100%;
-        max-width: 300px;
-        display: block;
-        font-size: 14px;
-    }
-    
-    /* ===== DESKTOP STYLES ===== */
-    @media (min-width: 769px) {
-        body {
-            padding: 20px;
-        }
-        
-        h1 {
-            font-size: 28px;
-        }
-        
-        h2 {
-            font-size: 20px;
-        }
-        
-        table {
-            width: 70%;
-            max-width: 800px;
-            min-width: 500px;
-            margin: 10px auto;
-            border-collapse: collapse;
-            border: 2px solid #4CAF50;
-        }
-        
-        th, td {
-            padding: 12px;
-            font-size: 16px;
-        }
-        
-        th {
-            background-color: #4CAF50;
-            color: white;
-            font-weight: bold;
-        }
-        
-        .table-container h3 {
-            font-size: 18px;
-            padding: 12px 25px;
-            background: none;
-            color: #2E7D32;
-            box-shadow: none;
-        }
-        
-        .table-wrapper {
-            overflow-x: visible;
-            margin: 0;
-            padding: 0;
-        }
-        
-        .server-btn {
-            width: auto;
-            padding: 12px 25px;
-        }
-        
-        .test-btn {
-            width: auto;
-            display: inline-block;
-            margin-left: 10px;
-        }
-        
-        .url-input {
-            width: 300px;
-            display: inline-block;
-        }
-        
-        .server-section {
-            text-align: center;
-            padding: 20px;
-            background-color: #f8fff8;
-            border-radius: 10px;
-            margin: 20px auto;
-            max-width: 800px;
-        }
-    }
-    
-    /* ===== ANIMATIONS ===== */
-    @keyframes slideIn {
-        from { transform: translateX(100%); opacity: 0; }
-        to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes slideOut {
-        from { transform: translateX(0); opacity: 1; }
-        to { transform: translateX(100%); opacity: 0; }
-    }
-    </style>
+    <!-- Firebase Libraries -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
 
 <body>
@@ -294,30 +29,56 @@
     <hr>
     <h2>ESP32 Sensor Module</h2>
 
+    <!-- ===== FIREBASE CONNECTION SECTION ===== -->
+    <div class="table-container" id="firebaseInputSection">
+        <h3>🌱 Connect to Device</h3>
+        <div class="table-wrapper">
+            <table style="max-width: 500px;">
+                <tr>
+                    <td colspan="3" style="text-align: center; padding: 20px;">
+                        <input type="text" 
+                               id="deviceIdInput" 
+                               placeholder="Type device ID (esp32-A, esp32-B)"
+                               style="padding: 10px; width: 100%; max-width: 300px; border: 2px solid #4CAF50; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">
+                        <br>
+                        <button onclick="loadFirebaseDevice()" 
+                                style="padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                            🔍 Load Device Data
+                        </button>
+                        <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                            Try: <code>esp32-A</code> or <code>esp32-B</code>
+                        </p>
+                    </td>
+                </tr>
+            </table>
+        </div>
+    </div>
+
     <!-- ===== NPK NUTRIENTS SECTION ===== -->
     <div class="table-container">
         <h3>NPK Nutrients</h3>
         <div class="table-wrapper">
             <table>
                 <tr>
-                    <th width="40%">Parameter</th>
+                    <th width="35%">Parameter</th>
+                    <th width="50%">Value</th>
                     <th width="15%">Unit</th>
-                    <th width="45%">Value</th>
+                    
                 </tr>
                 <tr>
                     <td>Nitrogen (N)</td>
-                    <td>mg/kg</td>
                     <td id="nitrogen-value"></td>
+                    <td>mg/kg</td>
                 </tr>
                 <tr>
                     <td>Phosphorus (P)</td>
-                    <td>mg/kg</td>
                     <td id="phosphorus-value"></td>
+                    <td>mg/kg</td>
                 </tr>
                 <tr>
                     <td>Potassium (K)</td>
-                    <td>mg/kg</td>
                     <td id="potassium-value"></td>
+                    <td>mg/kg</td>
                 </tr>
             </table>
         </div>
@@ -329,315 +90,73 @@
         <div class="table-wrapper">
             <table>
                 <tr>
-                    <th width="40%">Parameter</th>
+                    <th width="35%">Parameter</th>
+                    <th width="50%">Value</th>
                     <th width="15%">Unit</th>
-                    <th width="45%">Value</th>
-                </tr>
+                    </tr>
                 <tr>
                     <td>Electrical Conductivity</td>
-                    <td>uS/m</td>
                     <td id="conductivity-value"></td>
+                    <td>uS/m</td>
                 </tr>
                 <tr>
                     <td>pH</td>
-                    <td>pH</td>
                     <td id="ph-value"></td>
+                    <td>pH</td>
+
                 </tr>
                 <tr>
                     <td>Moisture</td>
-                    <td>%</td>
                     <td id="moisture-value"></td>
+                    <td>%</td>
                 </tr>
                 <tr>
                     <td>Temperature</td>
-                    <td>°C</td>
                     <td id="temperature-value"></td>
+                    <td>°C</td>
                 </tr>
-                <!-- Weight row - SAME FOR BOTH -->
                 <tr>
                     <td>Weight</td>
-                    <td>kg</td>
                     <td id="weight-value"></td>
+                    <td>kg</td>
                 </tr>
             </table>
         </div>
     </div>
 
-    <!-- ===== SERVER STATUS SECTION ===== -->
-    <div class="server-section">
-        <button id="serverCheckBtn" class="server-btn">
-            🔍 Check Server Connection
-        </button>
-
-        <div id="serverStatus" class="server-status">
-            <span style="font-weight: bold;">🟡 Server Status:</span> 
-            <span id="statusText">Not checked yet</span>
-            <br>
-            <span style="font-size: 13px; color: #666;">
-                Last checked: <span id="lastChecked">Never</span>
-            </span>
-        </div>
-
-        <div class="url-input-container">
-            <label for="serverUrl">ESP32 Server Link: </label>
-            <input type="text" id="serverUrl" class="url-input" placeholder="http://your-esp32-server.com">
-            <button onclick="testCustomUrl()" class="test-btn">Test Connection</button>
+    <!-- ===== TANK SECTION ===== -->
+    <div class="table-container">
+        <h3>Tank Details</h3>
+        <div class="table-wrapper">
+            <table>
+                <tr>
+                    <th width="35%">Parameter</th>
+                    <th width="50%">Value</th>
+                    <th width="15%">Unit</th>
+                    
+                </tr>
+                <tr>
+                    <td>Level</td>
+                    <td id="tank-level-value"></td>
+                    <td>cm</td>
+                </tr>
+            </table>
         </div>
     </div>
 
-    <!-- ===== JAVASCRIPT ===== -->
-    <script>
-    // ===== DOM ELEMENTS =====
-    const serverCheckBtn = document.getElementById('serverCheckBtn');
-    const statusText = document.getElementById('statusText');
-    const lastChecked = document.getElementById('lastChecked');
-    const serverUrlInput = document.getElementById('serverUrl');
-    
-    // Sensor value elements
-    const sensorElements = {
-        nitrogen: document.getElementById('nitrogen-value'),
-        phosphorus: document.getElementById('phosphorus-value'),
-        potassium: document.getElementById('potassium-value'),
-        conductivity: document.getElementById('conductivity-value'),
-        ph: document.getElementById('ph-value'),
-        moisture: document.getElementById('moisture-value'),
-        temperature: document.getElementById('temperature-value'),
-        weight: document.getElementById('weight-value')
-    };
+    <!-- ===== DEVICE INFO HEADER ===== -->
+    <div id="deviceInfoHeader" style="display: none; text-align: center; margin: 20px 0; padding: 15px; background: #e8f5e9; border-radius: 10px;">
+        <h3 id="deviceNameDisplay">Device Name</h3>
+        <p style="color: #666; font-size: 14px;">
+            Device ID: <span id="deviceIdDisplay"></span> • 
+            <button onclick="changeFirebaseDevice()" style="background: none; border: 1px solid #4CAF50; color: #2E7D32; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
+                Change Device
+            </button>
+        </p>
+    </div>
 
-    // ===== INITIALIZATION =====
-    function initializeApp() {
-        console.log("🌱 EET Agri IOT App Initializing...");
-        
-        // Set default server URL
-        serverUrlInput.value = "http://192.168.1.100";
-        
-        // Clear all sensor values (no fake data)
-        Object.values(sensorElements).forEach(el => {
-            el.textContent = "";
-        });
-        
-        // Load real data from server (if available)
-        loadRealData();
-    }
-
-    // ===== REAL DATA FUNCTIONS =====
-    async function loadRealData() {
-        try {
-            const serverUrl = serverUrlInput.value.trim();
-            if (!serverUrl) return;
-            
-            console.log("📡 Fetching real sensor data...");
-            
-            // REAL API CALL TO ESP32
-            // Uncomment when your ESP32 API is ready:
-            /*
-            const response = await fetch(`${serverUrl}/api/sensors`, {
-                method: 'GET',
-                headers: {
-                    'Accept': 'application/json'
-                },
-                timeout: 3000
-            });
-            
-            if (response.ok) {
-                const data = await response.json();
-                updateSensorValues(data);
-            }
-            */
-            
-        } catch (error) {
-            console.log("⚠️ Could not load data:", error.message);
-            // Keep values empty - no fake data
-        }
-    }
-
-    function updateSensorValues(data) {
-        // Update values ONLY if data exists
-        if (data.nitrogen !== undefined) sensorElements.nitrogen.textContent = data.nitrogen;
-        if (data.phosphorus !== undefined) sensorElements.phosphorus.textContent = data.phosphorus;
-        if (data.potassium !== undefined) sensorElements.potassium.textContent = data.potassium;
-        if (data.conductivity !== undefined) sensorElements.conductivity.textContent = data.conductivity;
-        if (data.ph !== undefined) sensorElements.ph.textContent = data.ph;
-        if (data.moisture !== undefined) sensorElements.moisture.textContent = data.moisture;
-        if (data.temperature !== undefined) sensorElements.temperature.textContent = data.temperature;
-        if (data.weight !== undefined) sensorElements.weight.textContent = data.weight;
-        
-        console.log("📊 Real sensor values updated");
-    }
-
-    // ===== SERVER FUNCTIONS =====
-    function updateServerStatus(status, message) {
-        const now = new Date();
-        const timeString = now.toLocaleTimeString([], { 
-            hour: '2-digit', 
-            minute: '2-digit',
-            second: '2-digit'
-        });
-        
-        lastChecked.textContent = `${now.toLocaleDateString()} ${timeString}`;
-        statusText.textContent = message;
-        
-        // Update status color
-        const statusDiv = document.getElementById('serverStatus');
-        if (status === 'online') {
-            statusDiv.style.borderLeftColor = '#4CAF50';
-            statusDiv.style.backgroundColor = '#e8f5e9';
-            statusText.innerHTML = '🟢 Online & Connected';
-        } else if (status === 'offline') {
-            statusDiv.style.borderLeftColor = '#f44336';
-            statusDiv.style.backgroundColor = '#ffebee';
-            statusText.innerHTML = '🔴 Offline - Server not reachable';
-        } else if (status === 'checking') {
-            statusDiv.style.borderLeftColor = '#FF9800';
-            statusDiv.style.backgroundColor = '#fff3e0';
-            statusText.innerHTML = '🟡 Checking server...';
-        } else {
-            statusDiv.style.borderLeftColor = '#9E9E9E';
-            statusDiv.style.backgroundColor = '#f5f5f5';
-            statusText.innerHTML = '⚪ Not checked yet';
-        }
-    }
-
-    async function checkServer() {
-        console.log("🔍 Checking server connection...");
-        
-        updateServerStatus('checking', 'Checking...');
-        
-        const originalText = serverCheckBtn.innerHTML;
-        serverCheckBtn.innerHTML = "⏳ Checking...";
-        serverCheckBtn.disabled = true;
-        
-        try {
-            const url = serverUrlInput.value.trim();
-            
-            if (!url) {
-                throw new Error("Please enter server URL");
-            }
-            
-            // REAL SERVER CHECK
-            const response = await fetch(url, {
-                method: 'GET',
-                mode: 'no-cors', // For ESP32 local server
-                headers: {
-                    'Accept': 'application/json'
-                }
-            });
-            
-            // With no-cors mode, we can't read response, but fetch won't reject
-            // If we get here, server is probably reachable
-            updateServerStatus('online', 'Online & Connected');
-            showNotification('✅ Server is online!', 'success');
-            
-            // Try to load real data after successful connection
-            loadRealData();
-            
-        } catch (error) {
-            updateServerStatus('offline', `Error: ${error.message}`);
-            showNotification('⚠️ Server check failed', 'warning');
-            console.error("Server check error:", error);
-        } finally {
-            serverCheckBtn.innerHTML = originalText;
-            serverCheckBtn.disabled = false;
-        }
-    }
-
-    function testCustomUrl() {
-        const url = serverUrlInput.value.trim();
-        if (!url) {
-            showNotification('⚠️ Please enter a URL', 'warning');
-            return;
-        }
-        
-        console.log(`Testing custom URL: ${url}`);
-        showNotification(`Testing ${url}...`, 'info');
-        
-        updateServerStatus('checking', `Testing ${url}`);
-        
-        // Real test
-        fetch(url, { method: 'GET', mode: 'no-cors' })
-            .then(() => {
-                updateServerStatus('online', `Custom test: ${url} is reachable`);
-                showNotification(`✅ ${url} is reachable`, 'success');
-            })
-            .catch(error => {
-                updateServerStatus('offline', `Error: ${error.message}`);
-                showNotification(`❌ ${url} is not reachable`, 'error');
-            });
-    }
-
-    // ===== UI HELPER FUNCTIONS =====
-    function showNotification(message, type = 'info') {
-        const existing = document.getElementById('serverNotification');
-        if (existing) existing.remove();
-        
-        const colors = {
-            success: '#4CAF50',
-            error: '#f44336',
-            warning: '#FF9800',
-            info: '#2196F3'
-        };
-        
-        const notification = document.createElement('div');
-        notification.id = 'serverNotification';
-        notification.style.cssText = `
-            position: fixed;
-            top: 20px;
-            right: 20px;
-            background-color: ${colors[type] || '#2196F3'};
-            color: white;
-            padding: 12px 20px;
-            border-radius: 6px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-            z-index: 1000;
-            font-weight: bold;
-            animation: slideIn 0.3s ease-out;
-            max-width: 300px;
-            word-wrap: break-word;
-        `;
-        notification.textContent = message;
-        
-        document.body.appendChild(notification);
-        
-        setTimeout(() => {
-            notification.style.animation = 'slideOut 0.3s ease-out';
-            setTimeout(() => notification.remove(), 300);
-        }, 3000);
-    }
-
-    // ===== EVENT LISTENERS =====
-    serverCheckBtn.addEventListener('click', checkServer);
-
-    serverUrlInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            testCustomUrl();
-        }
-    });
-
-    // Mobile touch feedback
-    serverCheckBtn.addEventListener('touchstart', function() {
-        this.style.transform = 'scale(0.98)';
-    });
-    
-    serverCheckBtn.addEventListener('touchend', function() {
-        this.style.transform = 'scale(1)';
-    });
-
-    // ===== PWA SERVICE WORKER REGISTRATION =====
-    if ('serviceWorker' in navigator) {
-        window.addEventListener('load', () => {
-            navigator.serviceWorker.register('/service-worker.js')
-                .then(registration => {
-                    console.log('✅ ServiceWorker registered:', registration.scope);
-                })
-                .catch(error => {
-                    console.log('❌ ServiceWorker registration failed:', error);
-                });
-        });
-    }
-
-    // ===== START THE APP =====
-    window.addEventListener('DOMContentLoaded', initializeApp);
-    </script>
+    <!-- ===== EXTERNAL JAVASCRIPT FILES ===== -->
+    <script src="firebase-config.js"></script>
+    <script src="app-logic.js"></script>
 </body>
 </html>
