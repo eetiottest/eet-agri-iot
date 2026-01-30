@@ -1,0 +1,21 @@
+{
+  "name": "EET Agri IoT Dashboard",
+  "short_name": "Agri IoT",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#4CAF50",
+  "description": "Smart Agriculture IoT Monitoring System",
+  "icons": [
+    {
+      "src": "logo.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "logo.png", 
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
