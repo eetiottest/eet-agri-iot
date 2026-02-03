@@ -11,21 +11,20 @@ const sensorElements = {
     level: document.getElementById('tank-level-value')
 };
 
-// Add this to check which elements are missing:
-console.log("Checking sensor elements:");
-for (const [key, element] of Object.entries(sensorElements)) {
-    console.log(`${key}:`, element ? "✓ Found" : "✗ NULL");
-}
-
 let currentDeviceId = null;
 let database = null;
 let app = null;
+let pumpStatusListener = null;
+let currentDeviceData = null;
 
-// ===== DOM ELEMENTS =====
-const serverCheckBtn = document.getElementById('serverCheckBtn');
-const statusText = document.getElementById('statusText');
-const lastChecked = document.getElementById('lastChecked');
-const serverUrlInput = document.getElementById('serverUrl');
+// ===== HELPER FUNCTIONS =====
+function getElement(id) {
+    const el = document.getElementById(id);
+    if (!el) {
+        console.warn(`⚠️ Element with id "${id}" not found`);
+    }
+    return el;
+}
 
 // ===== FIREBASE FUNCTIONS =====
 function initializeFirebase() {
@@ -56,27 +55,41 @@ function loadFirebaseDevice() {
         if (!initializeFirebase()) return;
     }
     
-    // Check if device exists
     database.ref('devices/' + deviceId).once('value')
         .then((snapshot) => {
             if (snapshot.exists()) {
                 const deviceData = snapshot.val();
                 currentDeviceId = deviceId;
+                currentDeviceData = deviceData;
                 
-                // Update URL
                 history.pushState({}, '', `?device=${deviceId}`);
                 
-                // Show device info
-                showDeviceInfo(deviceId, deviceData);
+                // Hide input, show device info
+                const inputSection = getElement('firebaseInputSection');
+                const deviceInfo = getElement('deviceInfoHeader');
+                const dashboard = getElement('sensorDashboard');
+                const pumpPage = getElement('pumpControlPage');
                 
-                // Update sensor values
-                updateFirebaseValues(deviceData.data || {});
+                if (inputSection) inputSection.style.display = 'none';
+                if (deviceInfo) deviceInfo.style.display = 'block';
+                if (dashboard) dashboard.style.display = 'none';
+                if (pumpPage) pumpPage.style.display = 'none';
                 
-                // Start real-time updates
-                startFirebaseUpdates(deviceId);
+                // Update device info display
+                const deviceNameDisplay = getElement('deviceNameDisplay');
+                const deviceIdDisplay = getElement('deviceIdDisplay');
+                
+                if (deviceNameDisplay) {
+                    deviceNameDisplay.textContent = deviceData.info?.name || deviceId.toUpperCase();
+                }
+                if (deviceIdDisplay) {
+                    deviceIdDisplay.textContent = deviceId;
+                }
+                
+                // Add action buttons
+                addDashboardButton(deviceData);
                 
                 showNotification(`✅ Connected to ${deviceId}`, "success");
-                
             } else {
                 showNotification(`❌ Device "${deviceId}" not found`, "error");
             }
@@ -87,85 +100,277 @@ function loadFirebaseDevice() {
         });
 }
 
-function showDeviceInfo(deviceId, deviceData) {
-    // Hide input section
-    document.getElementById('firebaseInputSection').style.display = 'none';
-    
-    // Show device info header
-    const infoSection = document.getElementById('deviceInfoHeader');
-    infoSection.style.display = 'block';
-    
-    // Update device info
-    document.getElementById('deviceNameDisplay').textContent = 
-        deviceData.info?.name || deviceId.toUpperCase();
-    document.getElementById('deviceIdDisplay').textContent = deviceId;
-}
-
 function updateFirebaseValues(sensorData) {
     console.log("Updating with Firebase data:", sensorData);
     
-    // Update NPK values (using YOUR field names)
-    sensorElements.nitrogen.textContent = sensorData.nitrogen;
-    sensorElements.phosphorus.textContent = sensorData.phosphorous; // Note spelling
-    sensorElements.potassium.textContent = sensorData.potassium;
-    
-    // Update additional sensors
-    sensorElements.conductivity.textContent = sensorData.ec;
-    sensorElements.ph.textContent = sensorData.ph; 
-    sensorElements.moisture.textContent = sensorData.moisture
-    sensorElements.temperature.textContent = sensorData.temperature;
-    sensorElements.weight.textContent = sensorData.weight;
-    
-    // Update tank level (using level field)
-    sensorElements.level.textContent = sensorData.level;
-
-}
-
-function formatValue(value, unit) {
-    if (value === undefined || value === null || value === "") {
-        return "--";
+    if (sensorElements.nitrogen) {
+        sensorElements.nitrogen.textContent = sensorData.nitrogen ? sensorData.nitrogen.toFixed(2) : "--";
     }
-    return value + unit;
+    if (sensorElements.phosphorus) {
+        sensorElements.phosphorus.textContent = sensorData.phosphorous ? sensorData.phosphorous.toFixed(2) : "--";
+    }
+    if (sensorElements.potassium) {
+        sensorElements.potassium.textContent = sensorData.potassium ? sensorData.potassium.toFixed(2) : "--";
+    }
+    if (sensorElements.conductivity) {
+        sensorElements.conductivity.textContent = sensorData.ec ? sensorData.ec.toFixed(2) : "--";
+    }
+    if (sensorElements.ph) {
+        sensorElements.ph.textContent = sensorData.ph ? sensorData.ph.toFixed(2) : "--";
+    }
+    if (sensorElements.moisture) {
+        sensorElements.moisture.textContent = sensorData.moisture ? sensorData.moisture.toFixed(2) : "--";
+    }
+    if (sensorElements.temperature) {
+        sensorElements.temperature.textContent = sensorData.temperature ? sensorData.temperature.toFixed(2) : "--";
+    }
+    if (sensorElements.weight) {
+        sensorElements.weight.textContent = sensorData.weight ? sensorData.weight.toFixed(2) : "--";
+    }
+    if (sensorElements.level) {
+        sensorElements.level.textContent = sensorData.level ? sensorData.level.toFixed(2) : "--";
+    }
 }
 
 function startFirebaseUpdates(deviceId) {
-    // Listen for real-time data updates
+    if (!database) return;
+    
     database.ref('devices/' + deviceId + '/data').on('value', (snapshot) => {
         const newData = snapshot.val();
         if (newData) {
             updateFirebaseValues(newData);
             console.log("📡 Real-time update received");
-            lastChecked.textContent = new Date().toLocaleTimeString();
         }
     });
 }
 
 function changeFirebaseDevice() {
-    // Stop listening to current device
+    console.log("🔄 Changing device...");
+    
     if (currentDeviceId && database) {
         database.ref('devices/' + currentDeviceId + '/data').off();
+        if (pumpStatusListener) {
+            database.ref('devices/' + currentDeviceId + '/pump').off();
+            pumpStatusListener = null;
+        }
     }
     
-    // Reset
     currentDeviceId = null;
+    currentDeviceData = null;
     
-    // Hide device info, show input
-    document.getElementById('deviceInfoHeader').style.display = 'none';
-    document.getElementById('firebaseInputSection').style.display = 'block';
+    // Hide everything, show input section
+    const pumpPage = getElement('pumpControlPage');
+    const deviceInfo = getElement('deviceInfoHeader');
+    const dashboard = getElement('sensorDashboard');
+    const inputSection = getElement('firebaseInputSection');
+    
+    if (pumpPage) pumpPage.style.display = 'none';
+    if (deviceInfo) deviceInfo.style.display = 'none';
+    if (dashboard) dashboard.style.display = 'none';
+    if (inputSection) inputSection.style.display = 'block';
     
     // Clear input
-    document.getElementById('deviceIdInput').value = '';
-    document.getElementById('deviceIdInput').focus();
+    const deviceInput = getElement('deviceIdInput');
+    if (deviceInput) {
+        deviceInput.value = '';
+        deviceInput.focus();
+    }
     
     // Clear sensor values
     Object.values(sensorElements).forEach(el => {
-        el.textContent = "--";
+        if (el) el.textContent = "--";
     });
+    
+    history.pushState({}, '', window.location.pathname);
+    console.log("✅ Reset complete, ready for new device");
 }
+
+// ===== DEVICE ACTION BUTTONS =====
+function addDashboardButton(deviceData) {
+    const deviceActionsContainer = getElement('deviceActionsContainer');
+    if (!deviceActionsContainer) return;
+    
+    // Clear any existing buttons
+    deviceActionsContainer.innerHTML = '';
+    
+    // Create "View Dashboard" button
+    const dashboardBtn = document.createElement('button');
+    dashboardBtn.className = 'device-action-btn';
+    dashboardBtn.innerHTML = '📊 View Sensor Dashboard';
+    dashboardBtn.onclick = () => {
+        showSensorDashboard(deviceData);
+    };
+    
+    // Create "Control Pumps" button
+    const pumpBtn = document.createElement('button');
+    pumpBtn.className = 'device-action-btn secondary';
+    pumpBtn.innerHTML = '🚰 Control Pumps';
+    pumpBtn.onclick = () => {
+        showPumpControlPage(deviceData);
+    };
+    
+    // Add buttons
+    deviceActionsContainer.appendChild(dashboardBtn);
+    deviceActionsContainer.appendChild(pumpBtn);
+}
+
+// ===== PAGE NAVIGATION FUNCTIONS =====
+function showSensorDashboard(deviceData) {
+    console.log("📊 Showing sensor dashboard");
+    
+    // Hide device info, show dashboard
+    const deviceInfo = getElement('deviceInfoHeader');
+    const dashboard = getElement('sensorDashboard');
+    
+    if (deviceInfo) deviceInfo.style.display = 'none';
+    if (dashboard) {
+        dashboard.style.display = 'block';
+        
+        // Update sensor values
+        updateFirebaseValues(deviceData.data || {});
+        
+        // Start real-time updates
+        startFirebaseUpdates(currentDeviceId);
+    }
+}
+
+function goBackToDeviceInfo() {
+    console.log("🔙 Going back to device info");
+    
+    // Hide dashboard, show device info
+    const dashboard = getElement('sensorDashboard');
+    const deviceInfo = getElement('deviceInfoHeader');
+    
+    if (dashboard) dashboard.style.display = 'none';
+    if (deviceInfo) deviceInfo.style.display = 'block';
+}
+
+// ===== PUMP CONTROL FUNCTIONS =====
+function showPumpControlPage(deviceData) {
+    console.log("🎛️ Showing pump control page");
+    
+    // Hide device info, show pump page
+    const deviceInfo = getElement('deviceInfoHeader');
+    const pumpPage = getElement('pumpControlPage');
+    
+    if (deviceInfo) deviceInfo.style.display = 'none';
+    if (pumpPage) {
+        pumpPage.style.display = 'block';
+        
+        // Update device name on pump page
+        const pumpDeviceName = getElement('pumpDeviceName');
+        if (pumpDeviceName) {
+            pumpDeviceName.textContent = deviceData.info?.name || currentDeviceId.toUpperCase();
+        }
+        
+        // Start listening to pump status
+        startPumpStatusUpdates(currentDeviceId);
+        loadCurrentPumpStatus(currentDeviceId);
+    }
+}
+
+function goBackToDeviceInfoFromPump() {  
+    console.log("🔙 Going back to device info from pump");
+    
+    // Hide pump page
+    const pumpPage = getElement('pumpControlPage');
+    if (pumpPage) pumpPage.style.display = 'none';
+    
+    // Show DEVICE INFO (not dashboard)
+    const deviceInfo = getElement('deviceInfoHeader');
+    if (deviceInfo) deviceInfo.style.display = 'block';
+    
+    // Hide dashboard just in case
+    const dashboard = getElement('sensorDashboard');
+    if (dashboard) dashboard.style.display = 'none';
+    
+    // Stop pump status updates
+    if (pumpStatusListener && database && currentDeviceId) {
+        database.ref('devices/' + currentDeviceId + '/pump').off();
+        pumpStatusListener = null;
+    }
+}
+
+function loadCurrentPumpStatus(deviceId) {
+    if (!database) return;
+    
+    database.ref('devices/' + deviceId + '/pump').once('value')
+        .then((snapshot) => {
+            const pumpData = snapshot.val();
+            if (pumpData) {
+                updatePumpDisplay('water', pumpData.water || 0);
+                updatePumpDisplay('fertilizer', pumpData.fertilizer || 0);
+            }
+        })
+        .catch((error) => {
+            console.error("Error loading pump status:", error);
+        });
+}
+
+function startPumpStatusUpdates(deviceId) {
+    if (!database) return;
+    
+    pumpStatusListener = database.ref('devices/' + deviceId + '/pump')
+        .on('value', (snapshot) => {
+            const pumpData = snapshot.val();
+            if (pumpData) {
+                updatePumpDisplay('water', pumpData.water || 0);
+                updatePumpDisplay('fertilizer', pumpData.fertilizer || 0);
+            }
+        });
+}
+
+function controlPump(pumpType, state) {
+    if (!currentDeviceId || !database) {
+        showNotification("⚠️ Not connected to device", "error");
+        return;
+    }
+    
+    const command = state === 1 ? "ON" : "OFF";
+    const updates = {};
+    updates[`devices/${currentDeviceId}/pump/${pumpType}`] = state;
+    
+    database.ref().update(updates)
+        .then(() => {
+            showNotification(`✅ ${pumpType.toUpperCase()} pump turned ${command}`, "success");
+        })
+        .catch((error) => {
+            console.error("Error controlling pump:", error);
+            showNotification(`❌ Failed to control pump: ${error.message}`, "error");
+        });
+}
+
+function updatePumpDisplay(pumpType, state) {
+    const statusElement = getElement(`${pumpType}PumpStatus`);
+    const onButton = getElement(`${pumpType}OnBtn`);
+    const offButton = getElement(`${pumpType}OffBtn`);
+    const summaryElement = getElement(`summary${pumpType.charAt(0).toUpperCase() + pumpType.slice(1)}`);
+    
+    if (!statusElement) return;
+    
+    if (state === 1) {
+        // Pump is ON
+        statusElement.textContent = "ON";
+        statusElement.className = "status-on";
+        
+        if (onButton) onButton.classList.add('active');
+        if (offButton) offButton.classList.remove('active');
+
+    } else {
+        // Pump is OFF
+        statusElement.textContent = "OFF";
+        statusElement.className = "status-off";
+        
+        if (onButton) onButton.classList.remove('active');
+        if (offButton) offButton.classList.add('active');
+
+    }
+}
+
 
 // ===== UI HELPER FUNCTIONS =====
 function showNotification(message, type = 'info') {
-    const existing = document.getElementById('serverNotification');
+    const existing = getElement('serverNotification');
     if (existing) existing.remove();
     
     const colors = {
@@ -206,28 +411,43 @@ function showNotification(message, type = 'info') {
 function initializeApp() {
     console.log("🌱 EET Agri IOT App Initializing...");
     
-    // Set default server URL
-    serverUrlInput.value = "http://192.168.1.100";
+    // Initialize with all pages hidden except input
+    const pumpPage = getElement('pumpControlPage');
+    const deviceInfo = getElement('deviceInfoHeader');
+    const dashboard = getElement('sensorDashboard');
+    const inputSection = getElement('firebaseInputSection');
     
-    // Clear all sensor values
+    if (pumpPage) pumpPage.style.display = 'none';
+    if (deviceInfo) deviceInfo.style.display = 'none';
+    if (dashboard) dashboard.style.display = 'none';
+    if (inputSection) inputSection.style.display = 'block';
+    
     Object.values(sensorElements).forEach(el => {
-        el.textContent = "--";
+        if (el) el.textContent = "--";
     });
     
-    // Check URL for device parameter
     const urlParams = new URLSearchParams(window.location.search);
     const deviceFromUrl = urlParams.get('device');
     
     if (deviceFromUrl) {
-        document.getElementById('deviceIdInput').value = deviceFromUrl;
-        setTimeout(() => loadFirebaseDevice(), 1000); // Delay to ensure Firebase loads
+        const deviceInput = getElement('deviceIdInput');
+        if (deviceInput) {
+            deviceInput.value = deviceFromUrl;
+            setTimeout(() => loadFirebaseDevice(), 1000);
+        }
     }
 }
 
 // ===== EVENT LISTENERS =====
-// Add Enter key support for device input
-document.getElementById('deviceIdInput')?.addEventListener('keypress', function(e) {
-    if (e.key === 'Enter') loadFirebaseDevice();
+document.addEventListener('DOMContentLoaded', function() {
+    const deviceInput = getElement('deviceIdInput');
+    if (deviceInput) {
+        deviceInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') loadFirebaseDevice();
+        });
+    }
+    
+    initializeApp();
 });
 
 // ===== PWA SERVICE WORKER =====
@@ -242,6 +462,3 @@ if ('serviceWorker' in navigator) {
             });
     });
 }
-
-// ===== START THE APP =====
-window.addEventListener('DOMContentLoaded', initializeApp);

@@ -1,8 +1,7 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-
-     <!-- PWA Configuration -->
+    <!-- PWA Configuration -->
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="theme-color" content="#4CAF50">
@@ -29,131 +28,248 @@
     <hr>
     <h2>ESP32 Sensor Module</h2>
 
-    <!-- ===== FIREBASE CONNECTION SECTION ===== -->
-    <div class="table-container" id="firebaseInputSection">
-        <h3>🌱 Connect to Device</h3>
+    <!-- ===== FIREBASE CONNECTION SECTION (ALWAYS SHOWN FIRST) ===== -->
+    <div id="firebaseInputSection">
+        <div class="table-container">
+            <h3>🌱 Connect to Device</h3>
+            <div class="table-wrapper">
+                <table style="max-width: 500px;">
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 20px;">
+                            <input type="text" 
+                                   id="deviceIdInput" 
+                                   placeholder="Type device ID (esp32-A, esp32-B)"
+                                   style="padding: 10px; width: 100%; max-width: 300px; border: 2px solid #4CAF50; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">
+                            <br>
+                            <button onclick="loadFirebaseDevice()" 
+                                    style="padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
+                                🔍 Load Device Data
+                            </button>
+                            <p style="color: #666; font-size: 14px; margin-top: 10px;">
+                                Try: <code>esp32-A</code> or <code>esp32-B</code>
+                            </p>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== DEVICE INFO HEADER (shown after device selection) ===== -->
+    <div id="deviceInfoHeader">
+        <div class="table-container">
+            <div class="table-wrapper">
+                <table style="max-width: 600px;">
+                    <tr>
+                        <td colspan="3" style="text-align: center; padding: 20px;">
+                            <h3 id="deviceNameDisplay" style="color: rgb(46, 125, 50); margin-bottom: 10px;">Device Name</h3>
+                            <p style="color: #666; margin-bottom: 20px;">
+                                Device ID: <span id="deviceIdDisplay" style="font-weight: bold;">--</span>
+                            </p>
+                            
+                            <!-- Action buttons will be added here by JavaScript -->
+                            <div id="deviceActionsContainer">
+                                <!-- Buttons appear here -->
+                            </div>
+                            
+                            <div style="margin-top: 20px;">
+                                <button onclick="changeFirebaseDevice()" 
+                                        style="background: #f8f9fa; color: #666; border: 1px solid #ddd; padding: 8px 16px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                                    🔄 Change Device
+                                </button>
+                            </div>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- ===== SENSOR DASHBOARD (hidden initially) ===== -->
+    <div id="sensorDashboard">
+        <!-- Back button for dashboard -->
+        <div style="text-align: center; margin: 20px 0;">
+            <button onclick="goBackToDeviceInfo()" 
+                    style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+                ← Back to Device Info
+            </button>
+        </div>
+        
+        <!-- ===== NPK NUTRIENTS SECTION ===== -->
+        <div class="table-container">
+            <h3>NPK Nutrients</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                    <tr>
+                        <td>Nitrogen (N)</td>
+                        <td id="nitrogen-value">--</td>
+                        <td>mg/kg</td>
+                    </tr>
+                    <tr>
+                        <td>Phosphorus (P)</td>
+                        <td id="phosphorus-value">--</td>
+                        <td>mg/kg</td>
+                    </tr>
+                    <tr>
+                        <td>Potassium (K)</td>
+                        <td id="potassium-value">--</td>
+                        <td>mg/kg</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== ADDITIONAL SENSORS SECTION ===== -->
+        <div class="table-container">
+            <h3>Additional Sensors</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                    <tr>
+                        <td>Electrical Conductivity</td>
+                        <td id="conductivity-value">--</td>
+                        <td>uS/m</td>
+                    </tr>
+                    <tr>
+                        <td>pH</td>
+                        <td id="ph-value">--</td>
+                        <td>pH</td>
+                    </tr>
+                    <tr>
+                        <td>Moisture</td>
+                        <td id="moisture-value">--</td>
+                        <td>%</td>
+                    </tr>
+                    <tr>
+                        <td>Temperature</td>
+                        <td id="temperature-value">--</td>
+                        <td>°C</td>
+                    </tr>
+                    <tr>
+                        <td>Weight</td>
+                        <td id="weight-value">--</td>
+                        <td>kg</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <!-- ===== TANK SECTION ===== -->
+        <div class="table-container">
+            <h3>Tank Details</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                    <tr>
+                        <td>Level</td>
+                        <td id="tank-level-value">--</td>
+                        <td>cm</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+
+<!-- ===== PUMP CONTROL PAGE (same layout as dashboard) ===== -->
+<div id="pumpControlPage">
+    <!-- Back button -->
+    <div style="text-align: center; margin: 20px 0;">
+        <button onclick="goBackToDeviceInfoFromPump()" 
+                style="background: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 5px; cursor: pointer; font-size: 14px;">
+            ← Back to Device Info
+        </button>
+    </div>
+    
+    <!-- Page Header -->
+    <h1 style="text-align: center; color: rgb(38, 52, 39); margin-bottom: 10px;">Pump Control</h1>
+    <p style="text-align: center; color: rgb(38, 52, 39); font-size: 16px; margin-bottom: 30px;">
+        Device: <span id="pumpDeviceName" style="font-weight: bold;">--</span>
+    </p>
+    
+    <!-- Water Pump Section -->
+    <div class="table-container">
+        <h3>Water Pump</h3>
         <div class="table-wrapper">
-            <table style="max-width: 500px;">
+            <table>
                 <tr>
-                    <td colspan="3" style="text-align: center; padding: 20px;">
-                        <input type="text" 
-                               id="deviceIdInput" 
-                               placeholder="Type device ID (esp32-A, esp32-B)"
-                               style="padding: 10px; width: 100%; max-width: 300px; border: 2px solid #4CAF50; border-radius: 5px; font-size: 16px; margin-bottom: 10px;">
-                        <br>
-                        <button onclick="loadFirebaseDevice()" 
-                                style="padding: 12px 30px; background: #4CAF50; color: white; border: none; border-radius: 5px; font-size: 16px; cursor: pointer;">
-                            🔍 Load Device Data
-                        </button>
-                        <p style="color: #666; font-size: 14px; margin-top: 10px;">
-                            Try: <code>esp32-A</code> or <code>esp32-B</code>
-                        </p>
+                    <th width="50%">Control</th>
+                    <th width="30%">Status</th>
+                    <th width="20%">Action</th>
+                </tr>
+                <tr>
+                    <td>Water Pump</td>
+                    <td>
+                        <span id="waterPumpStatus" class="status-off">OFF</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button onclick="controlPump('water', 1)" 
+                                    id="waterOnBtn" 
+                                    style="background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">
+                                ON
+                            </button>
+                            <button onclick="controlPump('water', 0)" 
+                                    id="waterOffBtn" 
+                                    style="background: #f44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">
+                                OFF
+                            </button>
+                        </div>
                     </td>
                 </tr>
             </table>
         </div>
     </div>
-
-    <!-- ===== NPK NUTRIENTS SECTION ===== -->
+    <br>
+    
+    <!-- Fertilizer Pump Section -->
     <div class="table-container">
-        <h3>NPK Nutrients</h3>
+        <h3>Fertilizer Pump</h3>
         <div class="table-wrapper">
             <table>
                 <tr>
-                    <th width="35%">Parameter</th>
-                    <th width="50%">Value</th>
-                    <th width="15%">Unit</th>
-                    
+                    <th width="50%">Control</th>
+                    <th width="30%">Status</th>
+                    <th width="20%">Action</th>
                 </tr>
                 <tr>
-                    <td>Nitrogen (N)</td>
-                    <td id="nitrogen-value"></td>
-                    <td>mg/kg</td>
-                </tr>
-                <tr>
-                    <td>Phosphorus (P)</td>
-                    <td id="phosphorus-value"></td>
-                    <td>mg/kg</td>
-                </tr>
-                <tr>
-                    <td>Potassium (K)</td>
-                    <td id="potassium-value"></td>
-                    <td>mg/kg</td>
+                    <td>Fertilizer Pump</td>
+                    <td>
+                        <span id="fertilizerPumpStatus" class="status-off">OFF</span>
+                    </td>
+                    <td style="text-align: center;">
+                        <div style="display: flex; gap: 10px; justify-content: center;">
+                            <button onclick="controlPump('fertilizer', 1)" 
+                                    id="fertilizerOnBtn" 
+                                    style="background: #4CAF50; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">
+                                ON
+                            </button>
+                            <button onclick="controlPump('fertilizer', 0)" 
+                                    id="fertilizerOffBtn" 
+                                    style="background: #f44336; color: white; border: none; padding: 8px 15px; border-radius: 4px; cursor: pointer; font-size: 13px; font-weight: bold;">
+                                OFF
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             </table>
         </div>
     </div>
-
-    <!-- ===== ADDITIONAL SENSORS SECTION ===== -->
-    <div class="table-container">
-        <h3>Additional Sensors</h3>
-        <div class="table-wrapper">
-            <table>
-                <tr>
-                    <th width="35%">Parameter</th>
-                    <th width="50%">Value</th>
-                    <th width="15%">Unit</th>
-                    </tr>
-                <tr>
-                    <td>Electrical Conductivity</td>
-                    <td id="conductivity-value"></td>
-                    <td>uS/m</td>
-                </tr>
-                <tr>
-                    <td>pH</td>
-                    <td id="ph-value"></td>
-                    <td>pH</td>
-
-                </tr>
-                <tr>
-                    <td>Moisture</td>
-                    <td id="moisture-value"></td>
-                    <td>%</td>
-                </tr>
-                <tr>
-                    <td>Temperature</td>
-                    <td id="temperature-value"></td>
-                    <td>°C</td>
-                </tr>
-                <tr>
-                    <td>Weight</td>
-                    <td id="weight-value"></td>
-                    <td>kg</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- ===== TANK SECTION ===== -->
-    <div class="table-container">
-        <h3>Tank Details</h3>
-        <div class="table-wrapper">
-            <table>
-                <tr>
-                    <th width="35%">Parameter</th>
-                    <th width="50%">Value</th>
-                    <th width="15%">Unit</th>
-                    
-                </tr>
-                <tr>
-                    <td>Level</td>
-                    <td id="tank-level-value"></td>
-                    <td>cm</td>
-                </tr>
-            </table>
-        </div>
-    </div>
-
-    <!-- ===== DEVICE INFO HEADER ===== -->
-    <div id="deviceInfoHeader" style="display: none; text-align: center; margin: 20px 0; padding: 15px; background: #e8f5e9; border-radius: 10px;">
-        <h3 id="deviceNameDisplay">Device Name</h3>
-        <p style="color: #666; font-size: 14px;">
-            Device ID: <span id="deviceIdDisplay"></span> • 
-            <button onclick="changeFirebaseDevice()" style="background: none; border: 1px solid #4CAF50; color: #2E7D32; padding: 5px 10px; border-radius: 3px; cursor: pointer; font-size: 12px;">
-                Change Device
-            </button>
-        </p>
-    </div>
+    
+    
+</div>
 
     <!-- ===== EXTERNAL JAVASCRIPT FILES ===== -->
     <script src="firebase-config.js"></script>
