@@ -1,29 +1,44 @@
 // ===== GLOBAL VARIABLES =====
-const sensorElements = {
-    nitrogen: document.getElementById('nitrogen-value'),
-    phosphorus: document.getElementById('phosphorus-value'),
-    potassium: document.getElementById('potassium-value'),
-    conductivity: document.getElementById('conductivity-value'),
-    ph: document.getElementById('ph-value'),
-    moisture: document.getElementById('moisture-value'),
-    temperature: document.getElementById('temperature-value'),
-    weight: document.getElementById('weight-value'),
-    level: document.getElementById('tank-level-value')
-};
-
 let currentDeviceId = null;
 let database = null;
 let app = null;
 let pumpStatusListener = null;
-let currentDeviceData = null;
 
-// ===== HELPER FUNCTIONS =====
-function getElement(id) {
-    const el = document.getElementById(id);
-    if (!el) {
-        console.warn(`⚠️ Element with id "${id}" not found`);
+// ===== HISTORY CHART VARIABLES =====
+let historyChart1 = null;
+let historyChart2 = null;
+let historicalData = [];
+
+// ===== PAGE NAVIGATION =====
+function openPage(pageId) {
+    // Hide all pages
+    document.querySelectorAll('.page').forEach(page => {
+        page.classList.remove('active');
+    });
+    
+    // Show selected page
+    const page = document.getElementById(pageId);
+    if (page) page.classList.add('active');
+    
+    // Special handling for each page
+    if (pageId === 'sensorDashboardPage') {
+        startFirebaseUpdates(currentDeviceId);
+    } else if (pageId === 'pumpControlPage') {
+        if (currentDeviceId) {
+            startPumpStatusUpdates(currentDeviceId);
+            loadCurrentPumpStatus(currentDeviceId);
+        }
+    } else if (pageId === 'historyPage') {
+        loadHistoricalData();
     }
-    return el;
+}
+
+function goBackToMenu() {
+    openPage('menuPage');
+}
+
+function goBackToLanding() {
+    changeFirebaseDevice();
 }
 
 // ===== FIREBASE FUNCTIONS =====
@@ -60,34 +75,25 @@ function loadFirebaseDevice() {
             if (snapshot.exists()) {
                 const deviceData = snapshot.val();
                 currentDeviceId = deviceId;
-                currentDeviceData = deviceData;
                 
-                history.pushState({}, '', `?device=${deviceId}`);
+                // Update device info on menu page
+                document.getElementById('deviceNameDisplay').textContent = 
+                    deviceData.info?.name || deviceId.toUpperCase();
+                document.getElementById('deviceIdDisplay').textContent = deviceId;
                 
-                // Hide input, show device info
-                const inputSection = getElement('firebaseInputSection');
-                const deviceInfo = getElement('deviceInfoHeader');
-                const dashboard = getElement('sensorDashboard');
-                const pumpPage = getElement('pumpControlPage');
+                // Update device names on other pages
+                document.getElementById('dashboardDeviceName').textContent = 
+                    deviceData.info?.name || deviceId.toUpperCase();
+                document.getElementById('pumpDeviceName').textContent = 
+                    deviceData.info?.name || deviceId.toUpperCase();
+                document.getElementById('historyDeviceName').textContent = 
+                    deviceData.info?.name || deviceId.toUpperCase();
                 
-                if (inputSection) inputSection.style.display = 'none';
-                if (deviceInfo) deviceInfo.style.display = 'block';
-                if (dashboard) dashboard.style.display = 'none';
-                if (pumpPage) pumpPage.style.display = 'none';
+                // Update initial sensor values
+                updateFirebaseValues(deviceData.data || {});
                 
-                // Update device info display
-                const deviceNameDisplay = getElement('deviceNameDisplay');
-                const deviceIdDisplay = getElement('deviceIdDisplay');
-                
-                if (deviceNameDisplay) {
-                    deviceNameDisplay.textContent = deviceData.info?.name || deviceId.toUpperCase();
-                }
-                if (deviceIdDisplay) {
-                    deviceIdDisplay.textContent = deviceId;
-                }
-                
-                // Add action buttons
-                addDashboardButton(deviceData);
+                // Go to menu page
+                openPage('menuPage');
                 
                 showNotification(`✅ Connected to ${deviceId}`, "success");
             } else {
@@ -101,34 +107,27 @@ function loadFirebaseDevice() {
 }
 
 function updateFirebaseValues(sensorData) {
-    console.log("Updating with Firebase data:", sensorData);
+    console.log("📊 Updating sensor values:", sensorData);
     
-    if (sensorElements.nitrogen) {
-        sensorElements.nitrogen.textContent = sensorData.nitrogen ? sensorData.nitrogen.toFixed(2) : "--";
-    }
-    if (sensorElements.phosphorus) {
-        sensorElements.phosphorus.textContent = sensorData.phosphorous ? sensorData.phosphorous.toFixed(2) : "--";
-    }
-    if (sensorElements.potassium) {
-        sensorElements.potassium.textContent = sensorData.potassium ? sensorData.potassium.toFixed(2) : "--";
-    }
-    if (sensorElements.conductivity) {
-        sensorElements.conductivity.textContent = sensorData.ec ? sensorData.ec.toFixed(2) : "--";
-    }
-    if (sensorElements.ph) {
-        sensorElements.ph.textContent = sensorData.ph ? sensorData.ph.toFixed(2) : "--";
-    }
-    if (sensorElements.moisture) {
-        sensorElements.moisture.textContent = sensorData.moisture ? sensorData.moisture.toFixed(2) : "--";
-    }
-    if (sensorElements.temperature) {
-        sensorElements.temperature.textContent = sensorData.temperature ? sensorData.temperature.toFixed(2) : "--";
-    }
-    if (sensorElements.weight) {
-        sensorElements.weight.textContent = sensorData.weight ? sensorData.weight.toFixed(2) : "--";
-    }
-    if (sensorElements.level) {
-        sensorElements.level.textContent = sensorData.level ? sensorData.level.toFixed(2) : "--";
+    // Update all sensor displays
+    const updates = {
+        'nitrogen-value': sensorData.nitrogen,
+        'phosphorus-value': sensorData.phosphorous,
+        'potassium-value': sensorData.potassium,
+        'conductivity-value': sensorData.ec,
+        'ph-value': sensorData.ph,
+        'moisture-value': sensorData.moisture,
+        'temperature-value': sensorData.temperature,
+        'weight-value': sensorData.weight,
+        'tank-level-value': sensorData.level
+    };
+    
+    for (const [id, value] of Object.entries(updates)) {
+        const element = document.getElementById(id);
+        if (element) {
+            element.textContent = value !== undefined ? 
+                (typeof value === 'number' ? value.toFixed(2) : value) : "--";
+        }
     }
 }
 
@@ -147,6 +146,7 @@ function startFirebaseUpdates(deviceId) {
 function changeFirebaseDevice() {
     console.log("🔄 Changing device...");
     
+    // Stop all listeners
     if (currentDeviceId && database) {
         database.ref('devices/' + currentDeviceId + '/data').off();
         if (pumpStatusListener) {
@@ -155,142 +155,42 @@ function changeFirebaseDevice() {
         }
     }
     
+    // Reset variables
     currentDeviceId = null;
-    currentDeviceData = null;
+    historicalData = [];
     
-    // Hide everything, show input section
-    const pumpPage = getElement('pumpControlPage');
-    const deviceInfo = getElement('deviceInfoHeader');
-    const dashboard = getElement('sensorDashboard');
-    const inputSection = getElement('firebaseInputSection');
-    
-    if (pumpPage) pumpPage.style.display = 'none';
-    if (deviceInfo) deviceInfo.style.display = 'none';
-    if (dashboard) dashboard.style.display = 'none';
-    if (inputSection) inputSection.style.display = 'block';
+    // Go to landing page
+    openPage('landingPage');
     
     // Clear input
-    const deviceInput = getElement('deviceIdInput');
+    const deviceInput = document.getElementById('deviceIdInput');
     if (deviceInput) {
         deviceInput.value = '';
         deviceInput.focus();
     }
     
-    // Clear sensor values
-    Object.values(sensorElements).forEach(el => {
-        if (el) el.textContent = "--";
+    // Clear all sensor displays
+    const sensorIds = [
+        'nitrogen-value', 'phosphorus-value', 'potassium-value',
+        'conductivity-value', 'ph-value', 'moisture-value',
+        'temperature-value', 'weight-value', 'tank-level-value'
+    ];
+    
+    sensorIds.forEach(id => {
+        const element = document.getElementById(id);
+        if (element) element.textContent = "--";
     });
     
-    history.pushState({}, '', window.location.pathname);
-    console.log("✅ Reset complete, ready for new device");
-}
-
-// ===== DEVICE ACTION BUTTONS =====
-function addDashboardButton(deviceData) {
-    const deviceActionsContainer = getElement('deviceActionsContainer');
-    if (!deviceActionsContainer) return;
+    // Clear pump status
+    document.getElementById('waterPumpStatus').textContent = "OFF";
+    document.getElementById('waterPumpStatus').className = "status-off";
+    document.getElementById('fertilizerPumpStatus').textContent = "OFF";
+    document.getElementById('fertilizerPumpStatus').className = "status-off";
     
-    // Clear any existing buttons
-    deviceActionsContainer.innerHTML = '';
-    
-    // Create "View Dashboard" button
-    const dashboardBtn = document.createElement('button');
-    dashboardBtn.className = 'device-action-btn';
-    dashboardBtn.innerHTML = '📊 View Sensor Dashboard';
-    dashboardBtn.onclick = () => {
-        showSensorDashboard(deviceData);
-    };
-    
-    // Create "Control Pumps" button
-    const pumpBtn = document.createElement('button');
-    pumpBtn.className = 'device-action-btn secondary';
-    pumpBtn.innerHTML = '🚰 Control Pumps';
-    pumpBtn.onclick = () => {
-        showPumpControlPage(deviceData);
-    };
-    
-    // Add buttons
-    deviceActionsContainer.appendChild(dashboardBtn);
-    deviceActionsContainer.appendChild(pumpBtn);
-}
-
-// ===== PAGE NAVIGATION FUNCTIONS =====
-function showSensorDashboard(deviceData) {
-    console.log("📊 Showing sensor dashboard");
-    
-    // Hide device info, show dashboard
-    const deviceInfo = getElement('deviceInfoHeader');
-    const dashboard = getElement('sensorDashboard');
-    
-    if (deviceInfo) deviceInfo.style.display = 'none';
-    if (dashboard) {
-        dashboard.style.display = 'block';
-        
-        // Update sensor values
-        updateFirebaseValues(deviceData.data || {});
-        
-        // Start real-time updates
-        startFirebaseUpdates(currentDeviceId);
-    }
-}
-
-function goBackToDeviceInfo() {
-    console.log("🔙 Going back to device info");
-    
-    // Hide dashboard, show device info
-    const dashboard = getElement('sensorDashboard');
-    const deviceInfo = getElement('deviceInfoHeader');
-    
-    if (dashboard) dashboard.style.display = 'none';
-    if (deviceInfo) deviceInfo.style.display = 'block';
+    console.log("✅ Reset complete");
 }
 
 // ===== PUMP CONTROL FUNCTIONS =====
-function showPumpControlPage(deviceData) {
-    console.log("🎛️ Showing pump control page");
-    
-    // Hide device info, show pump page
-    const deviceInfo = getElement('deviceInfoHeader');
-    const pumpPage = getElement('pumpControlPage');
-    
-    if (deviceInfo) deviceInfo.style.display = 'none';
-    if (pumpPage) {
-        pumpPage.style.display = 'block';
-        
-        // Update device name on pump page
-        const pumpDeviceName = getElement('pumpDeviceName');
-        if (pumpDeviceName) {
-            pumpDeviceName.textContent = deviceData.info?.name || currentDeviceId.toUpperCase();
-        }
-        
-        // Start listening to pump status
-        startPumpStatusUpdates(currentDeviceId);
-        loadCurrentPumpStatus(currentDeviceId);
-    }
-}
-
-function goBackToDeviceInfoFromPump() {  
-    console.log("🔙 Going back to device info from pump");
-    
-    // Hide pump page
-    const pumpPage = getElement('pumpControlPage');
-    if (pumpPage) pumpPage.style.display = 'none';
-    
-    // Show DEVICE INFO (not dashboard)
-    const deviceInfo = getElement('deviceInfoHeader');
-    if (deviceInfo) deviceInfo.style.display = 'block';
-    
-    // Hide dashboard just in case
-    const dashboard = getElement('sensorDashboard');
-    if (dashboard) dashboard.style.display = 'none';
-    
-    // Stop pump status updates
-    if (pumpStatusListener && database && currentDeviceId) {
-        database.ref('devices/' + currentDeviceId + '/pump').off();
-        pumpStatusListener = null;
-    }
-}
-
 function loadCurrentPumpStatus(deviceId) {
     if (!database) return;
     
@@ -341,36 +241,263 @@ function controlPump(pumpType, state) {
 }
 
 function updatePumpDisplay(pumpType, state) {
-    const statusElement = getElement(`${pumpType}PumpStatus`);
-    const onButton = getElement(`${pumpType}OnBtn`);
-    const offButton = getElement(`${pumpType}OffBtn`);
-    const summaryElement = getElement(`summary${pumpType.charAt(0).toUpperCase() + pumpType.slice(1)}`);
-    
+    const statusElement = document.getElementById(`${pumpType}PumpStatus`);
     if (!statusElement) return;
     
     if (state === 1) {
-        // Pump is ON
         statusElement.textContent = "ON";
         statusElement.className = "status-on";
-        
-        if (onButton) onButton.classList.add('active');
-        if (offButton) offButton.classList.remove('active');
-
     } else {
-        // Pump is OFF
         statusElement.textContent = "OFF";
         statusElement.className = "status-off";
-        
-        if (onButton) onButton.classList.remove('active');
-        if (offButton) offButton.classList.add('active');
-
     }
 }
 
+// ===== HISTORY & CHARTS FUNCTIONS =====
+function initializeCharts() {
+    const chart1Canvas = document.getElementById('singleMetricChart');
+    const chart2Canvas = document.getElementById('multiMetricChart');
+    
+    if (!chart1Canvas || !chart2Canvas) return;
+    
+    // Single metric chart
+    const ctx1 = chart1Canvas.getContext('2d');
+    historyChart1 = new Chart(ctx1, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [{
+                label: 'Weight (kg)',
+                data: [],
+                borderColor: 'rgb(75, 192, 192)',
+                backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                tension: 0.3,
+                fill: true
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'Time' } },
+                y: { title: { display: true, text: 'Weight (kg)' } }
+            }
+        }
+    });
 
-// ===== UI HELPER FUNCTIONS =====
+    // Multi-metric chart
+    const ctx2 = chart2Canvas.getContext('2d');
+    historyChart2 = new Chart(ctx2, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: [
+                {
+                    label: 'Weight (kg)',
+                    data: [],
+                    borderColor: 'rgb(75, 192, 192)',
+                    backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                    yAxisID: 'y',
+                    tension: 0.3
+                },
+                {
+                    label: 'Temperature (°C)',
+                    data: [],
+                    borderColor: 'rgb(255, 99, 132)',
+                    backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                    yAxisID: 'y1',
+                    tension: 0.3
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                x: { title: { display: true, text: 'Time' } },
+                y: {
+                    type: 'linear',
+                    display: true,
+                    position: 'left',
+                    title: { display: true, text: 'Weight (kg)' }
+                },
+                y1: {
+                    type: 'linear',
+                    display: true,
+                    position: 'right',
+                    title: { display: true, text: 'Temperature (°C)' },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+}
+
+function loadHistoricalData() {
+    if (!database || !currentDeviceId) {
+        showNotification('⚠️ Connect to Firebase first', 'warning');
+        return;
+    }
+    
+    showNotification('📊 Loading historical data...', 'info');
+    
+    const historyRef = database.ref('devices/' + currentDeviceId + '/history');
+    const limit = document.getElementById('dataPoints')?.value || '20';
+    
+    let query = historyRef;
+    if (limit !== 'all') {
+        query = query.limitToLast(parseInt(limit));
+    }
+    
+    query.once('value')
+        .then((snapshot) => {
+            const data = snapshot.val();
+            historicalData = processHistoricalData(data);
+            
+            if (historicalData.length > 0) {
+                updateCharts();
+                updateDataTable();
+                showNotification(`✅ Loaded ${historicalData.length} data points`, 'success');
+            } else {
+                showNotification('⚠️ No historical data found', 'warning');
+            }
+        })
+        .catch((error) => {
+            console.error('Error loading history:', error);
+            showNotification('❌ Failed to load historical data', 'error');
+        });
+}
+
+function processHistoricalData(rawData) {
+    if (!rawData) return [];
+    
+    const dataArray = [];
+    
+    for (const [key, value] of Object.entries(rawData)) {
+        dataArray.push({
+            id: key,
+            timestamp: value.timestamp || 0,
+            weight: parseFloat(value.weight) || 0,
+            temperature: parseFloat(value.temperature) || 0,
+            moisture: parseFloat(value.moisture) || 0,
+            ph: parseFloat(value.ph) || 0,
+            ec: parseFloat(value.ec) || 0,
+            timeString: formatTime(value.timestamp)
+        });
+    }
+    
+    return dataArray.sort((a, b) => a.timestamp - b.timestamp);
+}
+
+function formatTime(timestamp) {
+    if (!timestamp) return 'N/A';
+    const date = new Date(timestamp);
+    return date.toLocaleTimeString([], { 
+        hour: '2-digit', 
+        minute: '2-digit'
+    });
+}
+
+function updateCharts() {
+    if (!historyChart1 || !historyChart2 || historicalData.length === 0) {
+        return;
+    }
+    
+    const chartType = document.getElementById('chartType')?.value || 'line';
+    const selectedMetric = document.getElementById('metricSelect')?.value || 'weight';
+    
+    historyChart1.config.type = chartType;
+    historyChart2.config.type = chartType;
+    
+    const labels = historicalData.map(d => d.timeString);
+    
+    // Single metric chart
+    const metricData = historicalData.map(d => d[selectedMetric]);
+    const metricLabel = getMetricLabel(selectedMetric);
+    
+    historyChart1.data.labels = labels;
+    historyChart1.data.datasets[0].data = metricData;
+    historyChart1.data.datasets[0].label = metricLabel;
+    historyChart1.update();
+    
+    // Multi-metric chart
+    historyChart2.data.labels = labels;
+    historyChart2.data.datasets[0].data = historicalData.map(d => d.weight);
+    historyChart2.data.datasets[1].data = historicalData.map(d => d.temperature);
+    historyChart2.update();
+}
+
+function getMetricLabel(metric) {
+    const labels = {
+        'weight': 'Weight (kg)',
+        'temperature': 'Temperature (°C)',
+        'moisture': 'Moisture (%)',
+        'ph': 'pH',
+        'ec': 'Conductivity (uS/m)'
+    };
+    return labels[metric] || metric;
+}
+
+function updateDataTable() {
+    const tableBody = document.getElementById('historyTableBody');
+    if (!tableBody) return;
+    
+    tableBody.innerHTML = '';
+    
+    if (historicalData.length === 0) {
+        tableBody.innerHTML = `
+            <tr>
+                <td colspan="6" class="no-data">No historical data available</td>
+            </tr>
+        `;
+        return;
+    }
+    
+    const displayData = [...historicalData].reverse().slice(0, 20);
+    
+    displayData.forEach(item => {
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${item.timeString}</td>
+            <td>${item.weight.toFixed(1)}</td>
+            <td>${item.temperature.toFixed(1)}</td>
+            <td>${item.moisture.toFixed(1)}</td>
+            <td>${item.ph.toFixed(1)}</td>
+            <td>${item.ec.toFixed(0)}</td>
+        `;
+        tableBody.appendChild(row);
+    });
+}
+
+function exportHistoricalData() {
+    if (historicalData.length === 0) {
+        showNotification('⚠️ No data to export', 'warning');
+        return;
+    }
+    
+    let csv = 'Timestamp,Weight (kg),Temperature (°C),Moisture (%),pH,Conductivity (uS/m)\n';
+    
+    historicalData.forEach(item => {
+        const date = new Date(item.timestamp).toLocaleString();
+        csv += `${date},${item.weight},${item.temperature},${item.moisture},${item.ph},${item.ec}\n`;
+    });
+    
+    const blob = new Blob([csv], { type: 'text/csv' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `agri-iot-data-${new Date().toISOString().split('T')[0]}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showNotification('📥 Data exported as CSV', 'success');
+}
+
+// ===== NOTIFICATION FUNCTION =====
 function showNotification(message, type = 'info') {
-    const existing = getElement('serverNotification');
+    const existing = document.getElementById('serverNotification');
     if (existing) existing.remove();
     
     const colors = {
@@ -408,57 +535,24 @@ function showNotification(message, type = 'info') {
 }
 
 // ===== INITIALIZATION =====
-function initializeApp() {
-    console.log("🌱 EET Agri IOT App Initializing...");
-    
-    // Initialize with all pages hidden except input
-    const pumpPage = getElement('pumpControlPage');
-    const deviceInfo = getElement('deviceInfoHeader');
-    const dashboard = getElement('sensorDashboard');
-    const inputSection = getElement('firebaseInputSection');
-    
-    if (pumpPage) pumpPage.style.display = 'none';
-    if (deviceInfo) deviceInfo.style.display = 'none';
-    if (dashboard) dashboard.style.display = 'none';
-    if (inputSection) inputSection.style.display = 'block';
-    
-    Object.values(sensorElements).forEach(el => {
-        if (el) el.textContent = "--";
-    });
-    
-    const urlParams = new URLSearchParams(window.location.search);
-    const deviceFromUrl = urlParams.get('device');
-    
-    if (deviceFromUrl) {
-        const deviceInput = getElement('deviceIdInput');
-        if (deviceInput) {
-            deviceInput.value = deviceFromUrl;
-            setTimeout(() => loadFirebaseDevice(), 1000);
-        }
-    }
-}
-
-// ===== EVENT LISTENERS =====
 document.addEventListener('DOMContentLoaded', function() {
-    const deviceInput = getElement('deviceIdInput');
+    // Initialize Firebase
+    try {
+        app = firebase.initializeApp(window.firebaseConfig);
+        database = firebase.database();
+        console.log("✅ Firebase initialized");
+    } catch (error) {
+        console.log("ℹ️ Firebase not initialized yet");
+    }
+    
+    // Add Enter key support for device input
+    const deviceInput = document.getElementById('deviceIdInput');
     if (deviceInput) {
         deviceInput.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') loadFirebaseDevice();
         });
     }
     
-    initializeApp();
+    // Initialize charts after page loads
+    setTimeout(initializeCharts, 1000);
 });
-
-// ===== PWA SERVICE WORKER =====
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/service-worker.js')
-            .then(registration => {
-                console.log('✅ ServiceWorker registered:', registration.scope);
-            })
-            .catch(error => {
-                console.log('❌ ServiceWorker registration failed:', error);
-            });
-    });
-}
