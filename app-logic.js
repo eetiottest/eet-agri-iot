@@ -390,8 +390,14 @@ function processHistoricalData(rawData) {
 }
 
 function formatTime(timestamp) {
+    // If we have a time string from Firebase, use it directly
+    if (typeof timestamp === 'string' && timestamp.includes(':')) {
+        return timestamp; // Already in "HH:MM" format
+    }
+    
+    // Fallback to timestamp conversion
     if (!timestamp) return 'N/A';
-    const date = new Date(timestamp);
+    const date = new Date(timestamp * 1000);
     return date.toLocaleTimeString([], { 
         hour: '2-digit', 
         minute: '2-digit'
