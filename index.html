@@ -17,56 +17,58 @@
         body {
             font-family: Arial, sans-serif;
             margin: 0;
-            padding: 20px;
+            padding: 0;
             background: #f5f5f5;
         }
         
         .page {
-            max-width: 800px;
-            margin: 0 auto;
+            width: 100%;
             background: white;
-            border-radius: 10px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.1);
-            padding: 30px;
+            padding: 15px;
             display: none;
+            min-height: 100vh;
         }
         
         .page.active {
-            display: block !important; /* Added !important */
+            display: block !important;
         }
         
         .page-header {
             text-align: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
             border-bottom: 1px solid #e9ecef;
         }
         
         .page-header h2 {
             color: #2c3e50;
             margin: 10px 0;
+            font-size: 22px;
         }
         
         .back-btn {
             background: #6c757d;
             color: white;
             border: none;
-            padding: 10px 20px;
+            padding: 10px 15px;
             border-radius: 5px;
             cursor: pointer;
             font-size: 14px;
             margin-bottom: 10px;
+            width: 100%;
+            max-width: 200px;
         }
         
         /* Landing Page */
         #landingPage {
             text-align: center;
+            padding: 20px 15px;
         }
         
         .landing-title {
             color: #4CAF50;
-            margin-bottom: 30px;
-            font-size: 28px;
+            margin-bottom: 20px;
+            font-size: 24px;
         }
         
         .device-input {
@@ -76,11 +78,12 @@
             border: 2px solid #4CAF50;
             border-radius: 5px;
             font-size: 16px;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            box-sizing: border-box;
         }
         
         .connect-btn {
-            padding: 12px 30px;
+            padding: 12px 25px;
             background: #4CAF50;
             color: white;
             border: none;
@@ -88,6 +91,8 @@
             font-size: 16px;
             cursor: pointer;
             font-weight: 600;
+            width: 100%;
+            max-width: 300px;
         }
         
         .connect-btn:hover {
@@ -101,37 +106,40 @@
         
         .menu-title {
             color: #4CAF50;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
+            font-size: 22px;
         }
         
         .device-info {
             color: #666;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-size: 16px;
         }
         
         .menu-buttons {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        @media (min-width: 768px) {
+            .menu-buttons {
+                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            }
         }
         
         .menu-btn {
-            padding: 25px;
+            padding: 20px;
             background: #4CAF50;
             color: white;
             border: none;
             border-radius: 8px;
-            font-size: 18px;
+            font-size: 16px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s ease;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            min-height: 120px;
+            min-height: 100px;
             text-align: center;
         }
         
@@ -143,34 +151,48 @@
         
         /* Sensor Dashboard */
         .table-container {
-            margin-bottom: 30px;
+            margin-bottom: 25px;
         }
         
         .table-container h3 {
             color: #2c3e50;
             margin-bottom: 15px;
             padding-bottom: 10px;
-            border-bottom: 1px solid #e9ecef;
+            border-bottom: 2px solid #4CAF50;
+            font-size: 18px;
         }
         
         .table-wrapper {
             overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+            margin: 0 -10px;
+            padding: 0 10px;
         }
         
         table {
             width: 100%;
+            min-width: 100%;
             border-collapse: collapse;
+            font-size: 14px;
+        }
+        
+        @media (min-width: 768px) {
+            table {
+                min-width: 500px;
+                font-size: 16px;
+            }
         }
         
         th {
             background: #4CAF50;
             color: white;
-            padding: 12px;
+            padding: 12px 8px;
             text-align: left;
+            white-space: nowrap;
         }
         
         td {
-            padding: 10px 12px;
+            padding: 10px 8px;
             border-bottom: 1px solid #e9ecef;
         }
         
@@ -181,30 +203,37 @@
         /* Pump Control */
         .pump-control-card {
             background: white;
-            padding: 25px;
-            border-radius: 12px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
             border: 1px solid #e9ecef;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
         }
         
-        .pump-controls {
-            display: flex;
+        .pump-control-buttons {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
             gap: 10px;
-            justify-content: center;
-            margin-top: 15px;
+            margin: 15px 0;
         }
         
         .btn-pump {
-            padding: 20px;
+            padding: 15px;
             border: none;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 8px;
+            font-size: 14px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s ease;
             text-align: center;
-            width: 100%;
+            white-space: nowrap;
+        }
+        
+        @media (min-width: 768px) {
+            .btn-pump {
+                padding: 20px;
+                font-size: 16px;
+            }
         }
         
         .btn-pump-on {
@@ -219,38 +248,51 @@
         
         .btn-pump:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 12px rgba(0,0,0,0.15);
+            box-shadow: 0 4px 8px rgba(0,0,0,0.15);
         }
         
         .status-on {
             color: #4CAF50;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
         }
         
         .status-off {
             color: #f44336;
             font-weight: bold;
-            font-size: 18px;
+            font-size: 16px;
         }
         
         .pump-info {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin-top: 20px;
+            grid-template-columns: 1fr;
+            gap: 10px;
+            margin-top: 15px;
             padding-top: 15px;
             border-top: 1px solid #e9ecef;
         }
         
+        @media (min-width: 768px) {
+            .pump-info {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+        }
+        
         .info-item {
-            font-size: 14px;
+            font-size: 13px;
+        }
+        
+        @media (min-width: 768px) {
+            .info-item {
+                font-size: 14px;
+            }
         }
         
         .info-item span:first-child {
             color: #666;
             display: block;
-            margin-bottom: 5px;
+            margin-bottom: 3px;
         }
         
         .info-item span:last-child {
@@ -258,46 +300,78 @@
             font-weight: 600;
         }
         
-        /* History Page */
+        /* History Page - MOBILE OPTIMIZED */
         .chart-controls {
             display: flex;
-            flex-wrap: wrap;
-            gap: 15px;
-            margin: 25px 0;
-            padding: 20px;
+            flex-direction: column;
+            gap: 10px;
+            margin: 15px 0;
+            padding: 15px;
             background: #f8f9fa;
             border-radius: 8px;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 15px;
+            }
         }
         
         .control-group {
             display: flex;
             flex-direction: column;
             gap: 5px;
-            min-width: 150px;
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .control-group {
+                min-width: 150px;
+                width: auto;
+            }
         }
         
         .control-group label {
             font-weight: 600;
-            font-size: 0.9em;
+            font-size: 13px;
             color: #495057;
         }
         
+        @media (min-width: 768px) {
+            .control-group label {
+                font-size: 14px;
+            }
+        }
+        
         .control-group select {
-            padding: 8px 12px;
+            padding: 8px 10px;
             border: 1px solid #ced4da;
             border-radius: 6px;
             background: white;
-            font-size: 0.9em;
+            font-size: 14px;
+            width: 100%;
         }
         
         .btn-refresh, .btn-export {
-            padding: 10px 20px;
+            padding: 10px 15px;
             color: white;
             border: none;
             border-radius: 6px;
             cursor: pointer;
             font-weight: 600;
-            align-self: flex-end;
+            font-size: 14px;
+            width: 100%;
+            margin-top: 5px;
+        }
+        
+        @media (min-width: 768px) {
+            .btn-refresh, .btn-export {
+                width: auto;
+                margin-top: 0;
+                padding: 10px 20px;
+            }
         }
         
         .btn-refresh {
@@ -310,42 +384,87 @@
         
         .charts-container {
             display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-            margin: 30px 0;
+            grid-template-columns: 1fr;
+            gap: 15px;
+            margin: 20px 0;
         }
         
-        @media (max-width: 768px) {
+        @media (min-width: 768px) {
             .charts-container {
-                grid-template-columns: 1fr;
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
             }
         }
         
         .chart-card {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            overflow: hidden;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-card {
+                padding: 20px;
+            }
         }
         
         .chart-card h3 {
             margin-top: 0;
-            margin-bottom: 15px;
+            margin-bottom: 10px;
             color: #2c3e50;
-            font-size: 1.1em;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-card h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
         }
         
         .chart-wrapper {
-            height: 300px;
+            height: 250px;
             position: relative;
+            width: 100%;
+        }
+        
+        @media (min-width: 768px) {
+            .chart-wrapper {
+                height: 300px;
+            }
         }
         
         .data-table-container {
             background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
-            margin-top: 30px;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        
+        @media (min-width: 768px) {
+            .data-table-container {
+                padding: 20px;
+                margin-top: 30px;
+            }
+        }
+        
+        .data-table-container h3 {
+            margin-top: 0;
+            margin-bottom: 15px;
+            color: #2c3e50;
+            font-size: 16px;
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            .data-table-container h3 {
+                font-size: 18px;
+            }
         }
         
         #historyTableBody tr:nth-child(even) {
@@ -357,31 +476,80 @@
             color: #6c757d;
             padding: 20px;
             font-style: italic;
+            font-size: 14px;
         }
         
         /* Manual Control Section */
         .manual-control {
-            margin-top: 40px;
-            padding: 20px;
+            margin-top: 25px;
+            padding: 15px;
             background: #f8f9fa;
-            border-radius: 10px;
+            border-radius: 8px;
+        }
+        
+        @media (min-width: 768px) {
+            .manual-control {
+                margin-top: 40px;
+                padding: 20px;
+            }
+        }
+        
+        .manual-control h3 {
+            margin-top: 0;
+            color: #666;
+            font-size: 16px;
+            margin-bottom: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .manual-control h3 {
+                font-size: 18px;
+                margin-bottom: 15px;
+            }
+        }
+        
+        .manual-control p {
+            color: #888;
+            font-size: 13px;
+            margin-bottom: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .manual-control p {
+                font-size: 14px;
+            }
         }
         
         .manual-control-buttons {
             display: flex;
-            gap: 15px;
-            margin-top: 15px;
+            flex-direction: column;
+            gap: 10px;
+            margin-top: 10px;
+        }
+        
+        @media (min-width: 768px) {
+            .manual-control-buttons {
+                flex-direction: row;
+                gap: 15px;
+            }
         }
         
         .btn-all-on, .btn-all-off {
-            flex: 1;
-            padding: 15px;
+            padding: 12px;
             color: white;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             font-weight: bold;
             cursor: pointer;
-            font-size: 16px;
+            font-size: 14px;
+            text-align: center;
+        }
+        
+        @media (min-width: 768px) {
+            .btn-all-on, .btn-all-off {
+                padding: 15px;
+                font-size: 16px;
+            }
         }
         
         .btn-all-on {
@@ -392,12 +560,36 @@
             background: #f44336;
         }
         
-        /* Pump Control Buttons Grid */
-        .pump-control-buttons {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 15px;
-            margin: 20px 0;
+        /* Device Info Display */
+        #deviceNameDisplay {
+            color: #4CAF50;
+            font-size: 20px;
+            margin: 5px 0;
+        }
+        
+        #deviceIdDisplay {
+            color: #666;
+            font-size: 16px;
+        }
+        
+        /* Responsive adjustments for page content */
+        @media (max-width: 767px) {
+            .page {
+                padding: 10px;
+            }
+            
+            .page-header {
+                padding-bottom: 10px;
+                margin-bottom: 15px;
+            }
+            
+            .page-header h2 {
+                font-size: 20px;
+            }
+            
+            .table-container h3 {
+                font-size: 16px;
+            }
         }
     </style>
 </head>
@@ -407,11 +599,11 @@
     <div id="landingPage" class="page active">
         <div class="page-header">
             <h1 class="landing-title">🌱 EET Agri IOT</h1>
-            <p style="color: #666; margin-bottom: 30px; font-size: 18px;">ESP32 Sensor Module</p>
+            <p style="color: #666; margin-bottom: 20px; font-size: 16px;">ESP32 Sensor Module</p>
         </div>
         
-        <div style="margin-bottom: 30px;">
-            <h3 style="color: rgb(46, 125, 50); margin-bottom: 20px;">Connect to Device</h3>
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: rgb(46, 125, 50); margin-bottom: 15px; font-size: 18px;">Connect to Device</h3>
             <input type="text" 
                    id="deviceIdInput" 
                    placeholder="Type device ID (esp32-A, esp32-B)"
@@ -420,13 +612,13 @@
             <button onclick="loadFirebaseDevice()" class="connect-btn">
                 🔍 Load Device Data
             </button>
-            <p style="color: #666; font-size: 14px; margin-top: 15px;">
+            <p style="color: #666; font-size: 13px; margin-top: 10px;">
                 Try: <code>esp32-A</code> or <code>esp32-B</code>
             </p>
         </div>
         
-        <div style="border-top: 1px solid #eee; padding-top: 20px; margin-top: 20px;">
-            <p style="color: #888; font-size: 14px;">
+        <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+            <p style="color: #888; font-size: 13px;">
                 Connect to your ESP32 device to view sensor data, control pumps, and analyze historical trends.
             </p>
         </div>
@@ -454,7 +646,7 @@
             </button>
         </div>
         
-        <div style="text-align: center; margin-top: 30px;">
+        <div style="text-align: center; margin-top: 20px;">
             <button onclick="goBackToLanding()" class="back-btn">
                 🔄 Change Device
             </button>
@@ -466,7 +658,7 @@
         <div class="page-header">
             <button onclick="goBackToMenu()" class="back-btn">← Back to Menu</button>
             <h2>📊 Sensor Dashboard</h2>
-            <p>Device: <span id="dashboardDeviceName" style="font-weight: bold;">--</span></p>
+            <p style="font-size: 14px;">Device: <span id="dashboardDeviceName" style="font-weight: bold;">--</span></p>
         </div>
         
         <div class="table-container">
@@ -558,21 +750,21 @@
     <div id="pumpControlPage" class="page">
         <div class="page-header">
             <button onclick="goBackToMenu()" class="back-btn">← Back to Menu</button>
-            <h2> Pump Control</h2>
-            <p>Device: <span id="pumpDeviceName" style="font-weight: bold;">--</span></p>
+            <h2>⚗️ Pump Control</h2>
+            <p style="font-size: 14px;">Device: <span id="pumpDeviceName" style="font-weight: bold;">--</span></p>
         </div>
         
-        <div style="max-width: 600px; margin: 0 auto;">
+        <div>
             <!-- Water Pump Control -->
             <div class="pump-control-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 style="margin: 0; color: #2196F3;"> Water Pump</h3>
-                        <p style="margin: 5px 0 15px 0; color: #666;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 5px 0; color: #2196F3; font-size: 18px;">💧 Water Pump</h3>
+                        <p style="margin: 0; color: #666; font-size: 13px;">
                             Controls the main water supply to the system
                         </p>
                     </div>
-                    <div class="pump-status">
+                    <div class="pump-status" style="margin-top: 10px;">
                         Status: <span id="waterPumpStatus" class="status-off">OFF</span>
                     </div>
                 </div>
@@ -581,22 +773,24 @@
                     <button onclick="controlPump('water', 1)" 
                             class="btn-pump btn-pump-on"
                             id="waterOnBtn">
+                        <span style="font-size: 20px;">▶️</span><br>
                         TURN ON
                     </button>
                     <button onclick="controlPump('water', 0)" 
                             class="btn-pump btn-pump-off"
                             id="waterOffBtn">
+                        <span style="font-size: 20px;">⏸️</span><br>
                         TURN OFF
                     </button>
                 </div>
                 
                 <div class="pump-info">
                     <div class="info-item">
-                        <span>Last Command:</span>
+                        <span>💡 Last Command:</span>
                         <span id="waterLastCommand">--</span>
                     </div>
                     <div class="info-item">
-                        <span>Last Updated:</span>
+                        <span>🕒 Last Updated:</span>
                         <span id="waterLastUpdated">--</span>
                     </div>
                 </div>
@@ -604,14 +798,14 @@
             
             <!-- Fertilizer Pump Control -->
             <div class="pump-control-card">
-                <div style="display: flex; justify-content: space-between; align-items: center;">
-                    <div>
-                        <h3 style="margin: 0; color: #e69006;">Fertilizer Pump</h3>
-                        <p style="margin: 5px 0 15px 0; color: #666;">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 5px 0; color: #4CAF50; font-size: 18px;">🧪 Fertilizer Pump</h3>
+                        <p style="margin: 0; color: #666; font-size: 13px;">
                             Controls fertilizer distribution to the plants
                         </p>
                     </div>
-                    <div class="pump-status">
+                    <div class="pump-status" style="margin-top: 10px;">
                         Status: <span id="fertilizerPumpStatus" class="status-off">OFF</span>
                     </div>
                 </div>
@@ -620,22 +814,24 @@
                     <button onclick="controlPump('fertilizer', 1)" 
                             class="btn-pump btn-pump-on"
                             id="fertilizerOnBtn">
+                        <span style="font-size: 20px;">▶️</span><br>
                         TURN ON
                     </button>
                     <button onclick="controlPump('fertilizer', 0)" 
                             class="btn-pump btn-pump-off"
                             id="fertilizerOffBtn">
+                        <span style="font-size: 20px;">⏸️</span><br>
                         TURN OFF
                     </button>
                 </div>
                 
                 <div class="pump-info">
                     <div class="info-item">
-                        <span>Last Command:</span>
+                        <span>💡 Last Command:</span>
                         <span id="fertilizerLastCommand">--</span>
                     </div>
                     <div class="info-item">
-                        <span>Last Updated:</span>
+                        <span>🕒 Last Updated:</span>
                         <span id="fertilizerLastUpdated">--</span>
                     </div>
                 </div>
@@ -643,18 +839,18 @@
             
             <!-- Manual Control Section -->
             <div class="manual-control">
-                <h3 style="margin-top: 0; color: #666;">Manual Control</h3>
-                <p style="color: #888; font-size: 14px;">
+                <h3>Manual Control</h3>
+                <p>
                     Turn both pumps ON/OFF simultaneously:
                 </p>
                 <div class="manual-control-buttons">
                     <button onclick="controlBothPumps(1)" 
                             class="btn-all-on">
-                         TURN ALL ON
+                        ⚡ TURN ALL ON
                     </button>
                     <button onclick="controlBothPumps(0)" 
                             class="btn-all-off">
-                         TURN ALL OFF
+                        ⭕ TURN ALL OFF
                     </button>
                 </div>
             </div>
@@ -666,7 +862,7 @@
         <div class="page-header">
             <button onclick="goBackToMenu()" class="back-btn">← Back to Menu</button>
             <h2>📈 Historical Data</h2>
-            <p>Device: <span id="historyDeviceName" style="font-weight: bold;">--</span></p>
+            <p style="font-size: 14px;">Device: <span id="historyDeviceName" style="font-weight: bold;">--</span></p>
         </div>
 
         <div class="chart-controls">
@@ -680,7 +876,7 @@
             
             <div class="control-group">
                 <label for="dataPoints">Data Points:</label>
-                <select id="dataPoints" onchange="updateCharts()">
+                <select id="dataPoints" onchange="loadHistoricalData()">
                     <option value="20">Last 20</option>
                     <option value="50">Last 50</option>
                     <option value="100">Last 100</option>
@@ -700,20 +896,20 @@
                 </select>
             </div>
             
-            <button onclick="loadHistoricalData()" class="btn-refresh">🔄 Refresh Charts</button>
+            <button onclick="loadHistoricalData()" class="btn-refresh">🔄 Refresh</button>
             <button onclick="exportHistoricalData()" class="btn-export">📥 Export CSV</button>
         </div>
         
         <div class="charts-container">
             <div class="chart-card">
-                <h3> NPK Nutrients Over Time</h3>
+                <h3>📊 NPK Nutrients</h3>
                 <div class="chart-wrapper">
                     <canvas id="npkChart"></canvas>
                 </div>
             </div>
             
             <div class="chart-card">
-                <h3> Environmental Data</h3>
+                <h3>🌡️ Environmental Data</h3>
                 <div class="chart-wrapper">
                     <canvas id="environmentChart"></canvas>
                 </div>
@@ -721,18 +917,18 @@
         </div>
         
         <div class="data-table-container">
-            <h3> Raw Data (Most Recent 20)</h3>
+            <h3>📋 Raw Data (Most Recent 20)</h3>
             <div class="table-wrapper">
-                <table id="historyTable">
+                <table id="historyTable" style="font-size: 12px;">
                     <thead>
                         <tr>
-                            <th>Time</th>
-                            <th>N (mg/kg)</th>
-                            <th>P (mg/kg)</th>
-                            <th>K (mg/kg)</th>
-                            <th>Temp (°C)</th>
-                            <th>EC (uS/m)</th>
-                            <th>Moisture (%)</th>
+                            <th style="min-width: 70px;">Time</th>
+                            <th style="min-width: 60px;">N</th>
+                            <th style="min-width: 60px;">P</th>
+                            <th style="min-width: 60px;">K</th>
+                            <th style="min-width: 60px;">Temp</th>
+                            <th style="min-width: 60px;">EC</th>
+                            <th style="min-width: 70px;">Moisture</th>
                         </tr>
                     </thead>
                     <tbody id="historyTableBody">
@@ -879,7 +1075,7 @@
             for (const [id, value] of Object.entries(elements)) {
                 const element = document.getElementById(id);
                 if (element) {
-                    element.textContent = value ? value.toFixed(2) : "--";
+                    element.textContent = value !== undefined && value !== null ? value.toFixed(2) : "--";
                 }
             }
         }
@@ -1030,6 +1226,13 @@
             
             if (!npkCanvas || !envCanvas) return;
             
+            // Clear existing canvases if they exist
+            npkCanvas.width = npkCanvas.parentElement.clientWidth;
+            npkCanvas.height = 250;
+            
+            envCanvas.width = envCanvas.parentElement.clientWidth;
+            envCanvas.height = 250;
+            
             // NPK Chart (Nitrogen, Phosphorus, Potassium)
             const ctx1 = npkCanvas.getContext('2d');
             historyChart1 = new Chart(ctx1, {
@@ -1042,6 +1245,7 @@
                             data: [],
                             borderColor: 'rgb(255, 99, 132)',
                             backgroundColor: 'rgba(255, 99, 132, 0.1)',
+                            borderWidth: 2,
                             tension: 0.3,
                             fill: true
                         },
@@ -1050,6 +1254,7 @@
                             data: [],
                             borderColor: 'rgb(54, 162, 235)',
                             backgroundColor: 'rgba(54, 162, 235, 0.1)',
+                            borderWidth: 2,
                             tension: 0.3,
                             fill: true
                         },
@@ -1058,6 +1263,7 @@
                             data: [],
                             borderColor: 'rgb(75, 192, 192)',
                             backgroundColor: 'rgba(75, 192, 192, 0.1)',
+                            borderWidth: 2,
                             tension: 0.3,
                             fill: true
                         }
@@ -1067,22 +1273,61 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                },
+                                padding: 10
+                            }
+                        },
                         title: {
-                            display: true,
-                            text: 'NPK Nutrients Over Time'
+                            display: false
                         }
                     },
                     scales: {
                         x: { 
-                            title: { display: true, text: 'Time' },
+                            title: { 
+                                display: true, 
+                                text: 'Time',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
                             ticks: {
-                                maxTicksLimit: 10
+                                maxTicksLimit: window.innerWidth < 768 ? 5 : 10,
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 11
+                                }
+                            },
+                            grid: {
+                                display: true
                             }
                         },
                         y: { 
-                            title: { display: true, text: 'Concentration (mg/kg)' },
-                            beginAtZero: true
+                            title: { 
+                                display: true, 
+                                text: 'mg/kg',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            beginAtZero: true,
+                            ticks: {
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 11
+                                }
+                            },
+                            grid: {
+                                display: true
+                            }
                         }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
                     }
                 }
             });
@@ -1095,18 +1340,20 @@
                     labels: [],
                     datasets: [
                         {
-                            label: 'Temperature (°C)',
+                            label: 'Temp (°C)',
                             data: [],
                             borderColor: 'rgb(255, 159, 64)',
                             backgroundColor: 'rgba(255, 159, 64, 0.1)',
+                            borderWidth: 2,
                             yAxisID: 'y',
                             tension: 0.3
                         },
                         {
-                            label: 'Conductivity (uS/m)',
+                            label: 'EC (uS/m)',
                             data: [],
                             borderColor: 'rgb(153, 102, 255)',
                             backgroundColor: 'rgba(153, 102, 255, 0.1)',
+                            borderWidth: 2,
                             yAxisID: 'y1',
                             tension: 0.3
                         },
@@ -1115,6 +1362,7 @@
                             data: [],
                             borderColor: 'rgb(201, 203, 207)',
                             backgroundColor: 'rgba(201, 203, 207, 0.1)',
+                            borderWidth: 2,
                             yAxisID: 'y2',
                             tension: 0.3
                         }
@@ -1124,40 +1372,114 @@
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        title: {
-                            display: true,
-                            text: 'Environmental Data'
+                        legend: {
+                            position: 'top',
+                            labels: {
+                                boxWidth: 12,
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                },
+                                padding: 10
+                            }
                         }
                     },
                     scales: {
                         x: { 
-                            title: { display: true, text: 'Time' },
+                            title: { 
+                                display: true, 
+                                text: 'Time',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
                             ticks: {
-                                maxTicksLimit: 10
+                                maxTicksLimit: window.innerWidth < 768 ? 5 : 10,
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 11
+                                }
+                            },
+                            grid: {
+                                display: true
                             }
                         },
                         y: {
                             type: 'linear',
                             display: true,
                             position: 'left',
-                            title: { display: true, text: 'Temperature (°C)' }
+                            title: { 
+                                display: true, 
+                                text: 'Temp (°C)',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 11
+                                }
+                            },
+                            grid: {
+                                display: true
+                            }
                         },
                         y1: {
                             type: 'linear',
                             display: true,
                             position: 'right',
-                            title: { display: true, text: 'Conductivity (uS/m)' },
-                            grid: { drawOnChartArea: false }
+                            title: { 
+                                display: true, 
+                                text: 'EC (uS/m)',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 11
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            }
                         },
                         y2: {
                             type: 'linear',
-                            display: true,
+                            display: false, // Hide third Y axis on mobile
                             position: 'right',
-                            title: { display: true, text: 'Moisture (%)' },
-                            grid: { drawOnChartArea: false },
+                            title: { 
+                                display: window.innerWidth >= 768, 
+                                text: 'Moisture (%)',
+                                font: {
+                                    size: window.innerWidth < 768 ? 10 : 12
+                                }
+                            },
+                            ticks: {
+                                font: {
+                                    size: window.innerWidth < 768 ? 9 : 11
+                                }
+                            },
+                            grid: {
+                                drawOnChartArea: false
+                            },
                             offset: true
                         }
+                    },
+                    interaction: {
+                        intersect: false,
+                        mode: 'index'
                     }
+                }
+            });
+            
+            // Handle window resize
+            window.addEventListener('resize', function() {
+                if (historyChart1) {
+                    historyChart1.resize();
+                    historyChart1.update('none');
+                }
+                if (historyChart2) {
+                    historyChart2.resize();
+                    historyChart2.update('none');
                 }
             });
         }
@@ -1222,11 +1544,20 @@
         function formatTime(timestamp) {
             if (!timestamp) return 'N/A';
             const date = new Date(timestamp);
-            return date.toLocaleTimeString([], { 
-                hour: '2-digit', 
-                minute: '2-digit',
-                second: '2-digit'
-            });
+            if (window.innerWidth < 768) {
+                // Short format for mobile
+                return date.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit'
+                });
+            } else {
+                // Full format for desktop
+                return date.toLocaleTimeString([], { 
+                    hour: '2-digit', 
+                    minute: '2-digit',
+                    second: '2-digit'
+                });
+            }
         }
 
         function updateCharts() {
@@ -1240,20 +1571,43 @@
             historyChart1.config.type = chartType;
             historyChart2.config.type = chartType;
             
+            // Limit labels for mobile to prevent overcrowding
+            const maxLabels = window.innerWidth < 768 ? 8 : 15;
+            const step = Math.max(1, Math.floor(historicalData.length / maxLabels));
             const labels = historicalData.map(d => d.timeString);
+            const filteredLabels = historicalData.length > maxLabels ? 
+                labels.filter((_, index) => index % step === 0) : labels;
             
             // Update NPK chart
-            historyChart1.data.labels = labels;
+            historyChart1.data.labels = window.innerWidth < 768 ? filteredLabels : labels;
             historyChart1.data.datasets[0].data = historicalData.map(d => d.nitrogen);
             historyChart1.data.datasets[1].data = historicalData.map(d => d.phosphorus);
             historyChart1.data.datasets[2].data = historicalData.map(d => d.potassium);
             historyChart1.update();
             
             // Update Environment chart
-            historyChart2.data.labels = labels;
+            historyChart2.data.labels = window.innerWidth < 768 ? filteredLabels : labels;
             historyChart2.data.datasets[0].data = historicalData.map(d => d.temperature);
             historyChart2.data.datasets[1].data = historicalData.map(d => d.ec);
             historyChart2.data.datasets[2].data = historicalData.map(d => d.moisture);
+            
+            // Adjust font sizes based on screen width
+            const isMobile = window.innerWidth < 768;
+            historyChart1.options.plugins.legend.labels.font.size = isMobile ? 10 : 12;
+            historyChart1.options.scales.x.ticks.font.size = isMobile ? 9 : 11;
+            historyChart1.options.scales.y.ticks.font.size = isMobile ? 9 : 11;
+            historyChart1.options.scales.x.title.font.size = isMobile ? 10 : 12;
+            historyChart1.options.scales.y.title.font.size = isMobile ? 10 : 12;
+            
+            historyChart2.options.plugins.legend.labels.font.size = isMobile ? 10 : 12;
+            historyChart2.options.scales.x.ticks.font.size = isMobile ? 9 : 11;
+            historyChart2.options.scales.y.ticks.font.size = isMobile ? 9 : 11;
+            historyChart2.options.scales.x.title.font.size = isMobile ? 10 : 12;
+            historyChart2.options.scales.y.title.font.size = isMobile ? 10 : 12;
+            
+            // Hide third Y axis on mobile for environment chart
+            historyChart2.options.scales.y2.display = !isMobile;
+            
             historyChart2.update();
         }
 
@@ -1278,12 +1632,12 @@
                 const row = document.createElement('tr');
                 row.innerHTML = `
                     <td>${item.timeString}</td>
-                    <td>${item.nitrogen.toFixed(2)}</td>
-                    <td>${item.phosphorus.toFixed(2)}</td>
-                    <td>${item.potassium.toFixed(2)}</td>
-                    <td>${item.temperature.toFixed(2)}</td>
-                    <td>${item.ec.toFixed(2)}</td>
-                    <td>${item.moisture.toFixed(2)}</td>
+                    <td>${item.nitrogen.toFixed(1)}</td>
+                    <td>${item.phosphorus.toFixed(1)}</td>
+                    <td>${item.potassium.toFixed(1)}</td>
+                    <td>${item.temperature.toFixed(1)}</td>
+                    <td>${item.ec.toFixed(0)}</td>
+                    <td>${item.moisture.toFixed(1)}</td>
                 `;
                 tableBody.appendChild(row);
             });
@@ -1343,6 +1697,7 @@
                 animation: slideIn 0.3s ease-out;
                 max-width: 300px;
                 word-wrap: break-word;
+                font-size: 14px;
             `;
             notification.textContent = message;
             
@@ -1364,7 +1719,23 @@
             }
             
             // Initialize charts
-            setTimeout(initializeCharts, 1000);
+            setTimeout(initializeCharts, 500);
+            
+            // Handle window resize for charts
+            let resizeTimer;
+            window.addEventListener('resize', function() {
+                clearTimeout(resizeTimer);
+                resizeTimer = setTimeout(function() {
+                    if (historyChart1) {
+                        historyChart1.resize();
+                        historyChart1.update('none');
+                    }
+                    if (historyChart2) {
+                        historyChart2.resize();
+                        historyChart2.update('none');
+                    }
+                }, 250);
+            });
         });
     </script>
 </body>
