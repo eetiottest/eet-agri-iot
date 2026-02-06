@@ -335,11 +335,11 @@ function initializeCharts() {
 
 function loadHistoricalData() {
     if (!database || !currentDeviceId) {
-        showNotification('⚠️ Connect to Firebase first', 'warning');
+        showNotification('Connect to Firebase first', 'warning');
         return;
     }
     
-    showNotification('📊 Loading historical data...', 'info');
+    showNotification('Loading historical data...', 'info');
     
     const historyRef = database.ref('devices/' + currentDeviceId + '/history');
     const limit = document.getElementById('dataPoints')?.value || '20';
@@ -357,14 +357,14 @@ function loadHistoricalData() {
             if (historicalData.length > 0) {
                 updateCharts();
                 updateDataTable();
-                showNotification(`✅ Loaded ${historicalData.length} data points`, 'success');
+                showNotification(`Loaded ${historicalData.length} data points`, 'success');
             } else {
-                showNotification('⚠️ No historical data found', 'warning');
+                showNotification('No historical data found', 'warning');
             }
         })
         .catch((error) => {
             console.error('Error loading history:', error);
-            showNotification('❌ Failed to load historical data', 'error');
+            showNotification('Failed to load historical data', 'error');
         });
 }
 
@@ -373,35 +373,46 @@ function processHistoricalData(rawData) {
     
     const dataArray = [];
     
-    for (const [key, value] of Object.entries(rawData)) {
+    for (const [filename, value] of Object.entries(rawData)) {
+        // Now filename is like "1140", "1143" etc
         dataArray.push({
-            id: key,
-            timestamp: value.timestamp || 0,
-            weight: parseFloat(value.weight) || 0,
+            id: filename,
+            timeString: value.time || filename, // Use the time field from data
+            timestamp: value.time || filename, // For sorting
+            nitrogen: parseFloat(value.nitrogen) || 0,
+            phosphorus: parseFloat(value.phosphorous) || 0,
+            potassium: parseFloat(value.potassium) || 0,
             temperature: parseFloat(value.temperature) || 0,
-            moisture: parseFloat(value.moisture) || 0,
-            ph: parseFloat(value.ph) || 0,
             ec: parseFloat(value.ec) || 0,
-            timeString: formatTime(value.timestamp)
+            moisture: parseFloat(value.moisture) || 0,
+            weight: parseFloat(value.weight) || 0
         });
     }
     
-    return dataArray.sort((a, b) => a.timestamp - b.timestamp);
+    // Sort by time - convert "11:40" to sortable format
+    return dataArray.sort((a, b) => {
+        // Convert "11:40" to minutes for sorting
+        const timeA = convertTimeToMinutes(a.timeString);
+        const timeB = convertTimeToMinutes(b.timeString);
+        return timeA - timeB;
+    });
 }
 
-function formatTime(timestamp) {
-    // If we have a time string from Firebase, use it directly
-    if (typeof timestamp === 'string' && timestamp.includes(':')) {
-        return timestamp; // Already in "HH:MM" format
+function convertTimeToMinutes(timeStr) {
+    // Handle "11:40" format
+    if (timeStr.includes(':')) {
+        const parts = timeStr.split(':');
+        const hours = parseInt(parts[0]);
+        const minutes = parseInt(parts[1]);
+        return hours * 60 + minutes;
     }
-    
-    // Fallback to timestamp conversion
-    if (!timestamp) return 'N/A';
-    const date = new Date(timestamp * 1000);
-    return date.toLocaleTimeString([], { 
-        hour: '2-digit', 
-        minute: '2-digit'
-    });
+    // Handle "1140" format (if no colon)
+    else if (timeStr.length === 4) {
+        const hours = parseInt(timeStr.substring(0, 2));
+        const minutes = parseInt(timeStr.substring(2, 4));
+        return hours * 60 + minutes;
+    }
+    return 0;
 }
 
 function updateCharts() {
@@ -410,26 +421,25 @@ function updateCharts() {
     }
     
     const chartType = document.getElementById('chartType')?.value || 'line';
-    const selectedMetric = document.getElementById('metricSelect')?.value || 'weight';
     
     historyChart1.config.type = chartType;
     historyChart2.config.type = chartType;
     
+    // Use the timeString directly from data (already in "11:40" format)
     const labels = historicalData.map(d => d.timeString);
     
-    // Single metric chart
-    const metricData = historicalData.map(d => d[selectedMetric]);
-    const metricLabel = getMetricLabel(selectedMetric);
-    
+    // Update NPK chart
     historyChart1.data.labels = labels;
-    historyChart1.data.datasets[0].data = metricData;
-    historyChart1.data.datasets[0].label = metricLabel;
+    historyChart1.data.datasets[0].data = historicalData.map(d => d.nitrogen);
+    historyChart1.data.datasets[1].data = historicalData.map(d => d.phosphorus);
+    historyChart1.data.datasets[2].data = historicalData.map(d => d.potassium);
     historyChart1.update();
     
-    // Multi-metric chart
+    // Update Environment chart
     historyChart2.data.labels = labels;
-    historyChart2.data.datasets[0].data = historicalData.map(d => d.weight);
-    historyChart2.data.datasets[1].data = historicalData.map(d => d.temperature);
+    historyChart2.data.datasets[0].data = historicalData.map(d => d.temperature);
+    historyChart2.data.datasets[1].data = historicalData.map(d => d.ec);
+    historyChart2.data.datasets[2].data = historicalData.map(d => d.moisture);
     historyChart2.update();
 }
 
@@ -453,7 +463,7 @@ function updateDataTable() {
     if (historicalData.length === 0) {
         tableBody.innerHTML = `
             <tr>
-                <td colspan="6" class="no-data">No historical data available</td>
+                <td colspan="7" class="no-data">No historical data available</td>
             </tr>
         `;
         return;
@@ -465,11 +475,12 @@ function updateDataTable() {
         const row = document.createElement('tr');
         row.innerHTML = `
             <td>${item.timeString}</td>
-            <td>${item.weight.toFixed(1)}</td>
-            <td>${item.temperature.toFixed(1)}</td>
-            <td>${item.moisture.toFixed(1)}</td>
-            <td>${item.ph.toFixed(1)}</td>
-            <td>${item.ec.toFixed(0)}</td>
+            <td>${item.nitrogen.toFixed(2)}</td>
+            <td>${item.phosphorus.toFixed(2)}</td>
+            <td>${item.potassium.toFixed(2)}</td>
+            <td>${item.temperature.toFixed(2)}</td>
+            <td>${item.ec.toFixed(2)}</td>
+            <td>${item.moisture.toFixed(2)}</td>
         `;
         tableBody.appendChild(row);
     });
