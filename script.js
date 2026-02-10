@@ -112,7 +112,6 @@ function loadFirebaseDevice() {
 function updateFirebaseValues(sensorData) {
     console.log("📊 Updating sensor values:", sensorData);
     
-    // Update all sensor displays
     const updates = {
         'nitrogen-value': sensorData.nitrogen,
         'phosphorus-value': sensorData.phosphorous,
@@ -122,7 +121,8 @@ function updateFirebaseValues(sensorData) {
         'moisture-value': sensorData.moisture,
         'temperature-value': sensorData.temperature,
         'weight-value': sensorData.weight,
-        'tank-level-value': sensorData.level
+        'tank-level-value': sensorData.waterLevel,
+        'fertilizer-level-value': sensorData.fertilizerLevel
     };
     
     for (const [id, value] of Object.entries(updates)) {
@@ -147,7 +147,7 @@ function startFirebaseUpdates(deviceId) {
 }
 
 function changeFirebaseDevice() {
-    console.log("🔄 Changing device...");
+    console.log("Changing device...");
     
     // Stop all listeners
     if (currentDeviceId && database) {
@@ -176,7 +176,8 @@ function changeFirebaseDevice() {
     const sensorIds = [
         'nitrogen-value', 'phosphorus-value', 'potassium-value',
         'conductivity-value', 'ph-value', 'moisture-value',
-        'temperature-value', 'weight-value', 'tank-level-value'
+        'temperature-value', 'weight-value', 'water-level-value',
+        'fertilizer-level-value'  // Added fertilizer level
     ];
     
     sensorIds.forEach(id => {
@@ -192,7 +193,6 @@ function changeFirebaseDevice() {
     
     console.log("✅ Reset complete");
 }
-
 // ===== PUMP CONTROL FUNCTIONS =====
 function loadCurrentPumpStatus(deviceId) {
     if (!database) return;
