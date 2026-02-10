@@ -120,7 +120,10 @@ function updateFirebaseValues(sensorData) {
         'ph-value': sensorData.ph,
         'moisture-value': sensorData.moisture,
         'temperature-value': sensorData.temperature,
-        'weight-value': sensorData.weight,
+        'weight1-value': sensorData.plant1weight,
+        'weight2-value': sensorData.plant2weight,
+        'weight3-value': sensorData.plant3weight,
+        'weight4-value': sensorData.plant4weight,
         'tank-level-value': sensorData.waterLevel,
         'fertilizer-level-value': sensorData.fertilizerLevel
     };
@@ -176,7 +179,7 @@ function changeFirebaseDevice() {
     const sensorIds = [
         'nitrogen-value', 'phosphorus-value', 'potassium-value',
         'conductivity-value', 'ph-value', 'moisture-value',
-        'temperature-value', 'weight-value', 'water-level-value',
+        'temperature-value', 'weight1-value', 'weight2-value', 'weight3-value', 'weight4-value',
         'fertilizer-level-value'  // Added fertilizer level
     ];
     
@@ -642,10 +645,10 @@ function exportHistoricalData() {
         return;
     }
     
-    let csv = 'Timestamp,Nitrogen (mg/kg),Phosphorus (mg/kg),Potassium (mg/kg),Temperature (°C),Conductivity (uS/m),Moisture (%),pH,Weight (kg)\n';
+    let csv = 'Timestamp,Nitrogen (mg/kg),Phosphorus (mg/kg),Potassium (mg/kg),Temperature (°C),Conductivity (uS/m),Moisture (%),pH\n';
     
     historicalData.forEach(item => {
-        csv += `"${item.readableTime}",${item.nitrogen},${item.phosphorus},${item.potassium},${item.temperature},${item.ec},${item.moisture},${item.ph},${item.weight}\n`;
+        csv += `"${item.readableTime}",${item.nitrogen},${item.phosphorus},${item.potassium},${item.temperature},${item.ec},${item.moisture},${item.ph},\n`;
     });
     
     const blob = new Blob([csv], { type: 'text/csv' });
