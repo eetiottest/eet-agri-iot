@@ -1,21 +1,9 @@
 {
-  "name": "EET Agri IoT Dashboard",
-  "short_name": "Agri IoT",
-  "start_url": "/",
-  "display": "standalone",
-  "background_color": "#ffffff",
-  "theme_color": "#4CAF50",
-  "description": "Smart Agriculture IoT Monitoring System",
-  "icons": [
-    {
-      "src": "logo.png",
-      "sizes": "192x192",
-      "type": "image/png"
-    },
-    {
-      "src": "logo.png", 
-      "sizes": "512x512",
-      "type": "image/png"
-    }
-  ]
+    "name": "My FarmAgro",
+    "short_name": "FarmAgro",
+    "description": "Learn modern farming techniques online",
+    "start_url": "/index.html",
+    "display": "standalone",
+    "theme_color": "#2d6a2f",
+    "background_color": "#fefaf0"
 }
