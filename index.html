@@ -1,329 +1,379 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>My FarmAgro | Master Modern Farming</title>
-    <meta name="description" content="Learn modern farming techniques online. From chili to mango - complete from seed to harvest.">
-    <meta name="keywords" content="farming courses, digital agriculture, agropreneur, grow chili, grow tomato, Malaysia">
-    <meta name="author" content="My FarmAgro">
-    
-    <!-- PWA Meta Tags -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#4CAF50">
     <link rel="manifest" href="manifest.json">
-    <meta name="theme-color" content="#2d6a2f">
-    <meta name="mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="My FarmAgro">
+    <title>EET Agri IOT</title>
+    <link rel="icon" type="image/png" href="logo.png">
+    <link rel="apple-touch-icon" href="logo.png">
+    <link rel="stylesheet" href="styles.css">
     
-    <meta property="og:title" content="My FarmAgro | Master Modern Farming">
-    <meta property="og:description" content="Learn modern farming techniques online. From seed to harvest.">
-    <meta property="og:image" content="https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&h=630&fit=crop">
-    <meta property="og:type" content="website">
-    
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🌱</text></svg>">
-    
-    <link href="https://fonts.googleapis.com/css2?family=Inter:opsz,wght@14..32,300;14..32,400;14..32,500;14..32,600;14..32,700;14..32,800&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link rel="stylesheet" href="style.css">
+    <!-- Firebase MUST be loaded first -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 </head>
-<body>
 
-<header>
-    <div class="container">
-        <div class="navbar">
-            <div class="logo">
-                <i class="fas fa-seedling"></i> My FarmAgro
+<body>
+    <!-- ===== LANDING PAGE ===== -->
+    <div id="landingPage" class="page active">
+        <div class="page-header">
+            <h1 class="landing-title">🌱 EET Agri IOT</h1>
+            <p style="color: #666; margin-bottom: 20px; font-size: 16px;">ESP32 Sensor Module</p>
+        </div>
+        
+        <div style="margin-bottom: 20px;">
+            <h3 style="color: rgb(46, 125, 50); margin-bottom: 15px; font-size: 18px;">Connect to Device</h3>
+            <input type="text" 
+                   id="deviceIdInput" 
+                   placeholder="Type device ID (esp32-A, esp32-B)"
+                   class="device-input">
+            <br>
+            <button onclick="loadFirebaseDevice()" class="connect-btn">
+                🔍 Load Device Data
+            </button>
+            <p style="color: #666; font-size: 13px; margin-top: 10px;">
+                Try: <code>esp32-A</code> or <code>esp32-B</code>
+            </p>
+        </div>
+        
+        <div style="border-top: 1px solid #eee; padding-top: 15px; margin-top: 15px;">
+            <p style="color: #888; font-size: 13px;">
+                Connect to your ESP32 device to view sensor data, control pumps, and analyze historical trends.
+            </p>
+        </div>
+    </div>
+
+    <!-- ===== MENU PAGE ===== -->
+    <div id="menuPage" class="page">
+        <div class="page-header">
+            <h2 class="menu-title">Device Menu</h2>
+            <div class="device-info">
+                <h3 id="deviceNameDisplay">farm A</h3>
+                <p>Device ID: <span id="deviceIdDisplay" style="font-weight: bold;">esp32-A</span></p>
             </div>
-            <div class="nav-links">
-                <a href="#">Home</a>
-                <a href="#courses">Courses</a>
-                <a href="#vegetables">All Courses</a>
-                <a href="#credits">Buy Credits</a>
-                <a href="#testimonials">Testimonials</a>
-                <button class="btn-outline" id="accountBtn" style="display: none;">My Account</button>
-                <button class="btn-outline" id="loginLogoutBtn">Log In</button>
+        </div>
+        
+        <div class="menu-buttons">
+            <button onclick="openPage('sensorDashboardPage')" class="menu-btn">
+                Sensor Dashboard
+            </button>
+            <button onclick="openPage('pumpControlPage')" class="menu-btn">
+                Control Pumps
+            </button>
+            <button onclick="openPage('historyPage')" class="menu-btn">
+                View History
+            </button>
+        </div>
+        
+        <div style="text-align: center; margin-top: 20px;">
+            <button onclick="goBackToLanding()" class="back-btn">
+                Change Device
+            </button>
+        </div>
+    </div>
+
+    <!-- ===== SENSOR DASHBOARD PAGE ===== -->
+    <div id="sensorDashboardPage" class="page">
+        <div class="page-header">
+            <button onclick="goBackToMenu()" class="back-btn">← Back to Menu</button>
+            <h2> Sensor Dashboard</h2>
+            <p style="font-size: 14px;">Device: <span id="dashboardDeviceName" style="font-weight: bold;">--</span></p>
+        </div>
+        
+        <div class="table-container">
+            <h3>NPK Nutrients</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                    <tr>
+                        <td>Nitrogen (N)</td>
+                        <td id="nitrogen-value">--</td>
+                        <td>mg/kg</td>
+                    </tr>
+                    <tr>
+                        <td>Phosphorus (P)</td>
+                        <td id="phosphorus-value">--</td>
+                        <td>mg/kg</td>
+                    </tr>
+                    <tr>
+                        <td>Potassium (K)</td>
+                        <td id="potassium-value">--</td>
+                        <td>mg/kg</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>Additional Sensors</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                    <tr>
+                        <td>Electrical Conductivity</td>
+                        <td id="conductivity-value">--</td>
+                        <td>uS/m</td>
+                    </tr>
+                    <tr>
+                        <td>pH</td>
+                        <td id="ph-value">--</td>
+                        <td>pH</td>
+                    </tr>
+                    <tr>
+                        <td>Moisture</td>
+                        <td id="moisture-value">--</td>
+                        <td>%</td>
+                    </tr>
+                    <tr>
+                        <td>Temperature</td>
+                        <td id="temperature-value">--</td>
+                        <td>°C</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>Plants</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                        <td>Plant Weight 1</td>
+                        <td id="weight1-value">--</td>
+                        <td>kg</td>
+                    </tr>
+                        <td>Plant Weight 2</td>
+                        <td id="weight2-value">--</td>
+                    <td>kg</td>
+                    <tr>
+                        <td>Plant Weight 3</td>
+                        <td id="weight3-value">--</td>
+                        <td>kg</td>
+                    </tr>
+                    <tr></tr>
+                        <td>Plant Weight 4</td>
+                        <td id="weight4-value">--</td>
+                        <td>kg</td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div class="table-container">
+            <h3>Tank Details</h3>
+            <div class="table-wrapper">
+                <table>
+                    <tr>
+                        <th width="35%">Parameter</th>
+                        <th width="50%">Value</th>
+                        <th width="15%">Unit</th>
+                    </tr>
+                    <tr>
+                        <td>Water Tank Level</td>
+                        <td id="tank-level-value">--</td>
+                        <td>cm</td>
+                    </tr>
+                    <tr>
+                        <td>Fertilizer Tank Level</td>
+                        <td id="fertilizer-level-value">--</td>
+                        <td>cm</td>
+                    </tr>
+                </table>
             </div>
         </div>
     </div>
-</header>
 
-<main>
-    <div class="container">
-        <!-- Hero Slider -->
-        <div class="hero-slider" id="heroSlider">
-            <div class="slide active" style="background-image: url('https://images.unsplash.com/photo-1464226184884-fa280b87c399?w=1200&h=500&fit=crop');">
-                <div class="slide-content">
-                    <h2>Welcome to My FarmAgro!</h2>
-                    <p>Start your journey as a modern agropreneur with our expert-led courses.</p>
-                </div>
-            </div>
-            <div class="slide" style="background-image: url('https://images.pexels.com/photos/164504/pexels-photo-164504.jpeg?w=1200&h=500&fit=crop');">
-                <div class="slide-content">
-                    <h2>Learn from Experts</h2>
-                    <p>Step-by-step video lessons from experienced farmers.</p>
-                </div>
-            </div>
-            <div class="slide" style="background-image: url('https://images.unsplash.com/photo-1622383563227-04401ab4e5ea?w=1200&h=500&fit=crop');">
-                <div class="slide-content">
-                    <h2>Grow Your Own Food</h2>
-                    <p>From seed to harvest - master the art of farming.</p>
-                </div>
-            </div>
-            <button class="slider-prev" id="sliderPrev"><i class="fas fa-chevron-left"></i></button>
-            <button class="slider-next" id="sliderNext"><i class="fas fa-chevron-right"></i></button>
-            <div class="slider-dots" id="sliderDots"></div>
+    <!-- ===== PUMP CONTROL PAGE ===== -->
+    <div id="pumpControlPage" class="page">
+        <div class="page-header">
+            <button onclick="goBackToMenu()" class="back-btn">← Back to Menu</button>
+            <h2>Pump Control</h2>
+            <p style="font-size: 14px;">Device: <span id="pumpDeviceName" style="font-weight: bold;">--</span></p>
         </div>
-
-        <!-- Toast Container -->
-        <div class="toast-container" id="toastContainer"></div>
-
-        <!-- How It Works Section -->
-        <div style="text-align: center; margin: 80px 0 40px;">
-            <h2 class="section-title" style="margin-bottom: 20px;">How It Works</h2>
-            <p style="color: #6c7a63;">Start your journey in 3 simple steps</p>
-        </div>
-        <div class="steps-container">
-            <div class="how-it-works-step">
-                <div class="step-number">1</div>
-                <h3>Register Account</h3>
-                <p style="color: #6c7a63; font-size: 0.9rem;">Create your free account to start learning.</p>
-            </div>
-            <div class="how-it-works-step">
-                <div class="step-number">2</div>
-                <h3>Buy Credits</h3>
-                <p style="color: #6c7a63; font-size: 0.9rem;">Purchase credits to unlock your chosen courses.</p>
-            </div>
-            <div class="how-it-works-step">
-                <div class="step-number">3</div>
-                <h3>Start Learning</h3>
-                <p style="color: #6c7a63; font-size: 0.9rem;">Follow weekly modules and start growing your harvest.</p>
-            </div>
-        </div>
-
-        <!-- Stats Section -->
-        <div class="stats-grid">
-            <div class="stat-card">
-                <div class="stat-number" id="statCourses">6+</div>
-                <div class="stat-label">Expert Courses</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">50+</div>
-                <div class="stat-label">Video Lessons</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">5,000+</div>
-                <div class="stat-label">Registered Farmers</div>
-            </div>
-            <div class="stat-card">
-                <div class="stat-number">4.9</div>
-                <div class="stat-label">★ User Rating</div>
-            </div>
-        </div>
-
-        <!-- Fundamentals Section -->
-        <div id="courses">
-            <div class="section-title">🌾 Master the Fundamentals</div>
-            <div class="grid-cards">
-                <div class="card">
-                    <div class="feature-icon"><i class="fas fa-dragon"></i></div>
-                    <h3>Soil & Land Prep</h3>
-                    <p>Learn soil testing, composting, and regenerative techniques to build rich farmland.</p>
+        
+        <div>
+            <!-- Water Pump Control -->
+            <div class="pump-control-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 5px 0; color: #2196F3; font-size: 18px;">Water Pump</h3>
+                        <p style="margin: 0; color: #666; font-size: 13px;">
+                            Controls the main water supply to the system
+                        </p>
+                    </div>
+                    <div class="pump-status" style="margin-top: 10px;">
+                        Status: <span id="waterPumpStatus" class="status-off">OFF</span>
+                    </div>
                 </div>
-                <div class="card">
-                    <div class="feature-icon"><i class="fas fa-carrot"></i></div>
-                    <h3>Crop Planning</h3>
-                    <p>Seasonal calendars, companion planting, and high-value crop selection.</p>
+                
+                <div class="pump-control-buttons">
+                    <button onclick="controlPump('water', 1)" 
+                            class="btn-pump btn-pump-on"
+                            id="waterOnBtn">
+                        TURN ON
+                    </button>
+                    <button onclick="controlPump('water', 0)" 
+                            class="btn-pump btn-pump-off"
+                            id="waterOffBtn">
+                        TURN OFF
+                    </button>
                 </div>
-                <div class="card">
-                    <div class="feature-icon"><i class="fas fa-water"></i></div>
-                    <h3>Irrigation Systems</h3>
-                    <p>Drip, sprinkler, rainwater harvesting — efficient water management.</p>
+                
+                <div class="pump-info">
+                    <div class="info-item">
+                        <span>Last Command:</span>
+                        <span id="waterLastCommand">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Last Updated:</span>
+                        <span id="waterLastUpdated">--</span>
+                    </div>
                 </div>
-                <div class="card">
-                    <div class="feature-icon"><i class="fas fa-chart-line"></i></div>
-                    <h3>Farm Economics</h3>
-                    <p>Budgeting, pricing, and selling to local markets & restaurants.</p>
+            </div>
+            
+            <!-- Fertilizer Pump Control -->
+            <div class="pump-control-card">
+                <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap;">
+                    <div style="flex: 1; min-width: 200px;">
+                        <h3 style="margin: 0 0 5px 0; color: #4CAF50; font-size: 18px;">Fertilizer Pump</h3>
+                        <p style="margin: 0; color: #666; font-size: 13px;">
+                            Controls fertilizer distribution to the plants
+                        </p>
+                    </div>
+                    <div class="pump-status" style="margin-top: 10px;">
+                        Status: <span id="fertilizerPumpStatus" class="status-off">OFF</span>
+                    </div>
+                </div>
+                
+                <div class="pump-control-buttons">
+                    <button onclick="controlPump('fertilizer', 1)" 
+                            class="btn-pump btn-pump-on"
+                            id="fertilizerOnBtn">
+                        TURN ON
+                    </button>
+                    <button onclick="controlPump('fertilizer', 0)" 
+                            class="btn-pump btn-pump-off"
+                            id="fertilizerOffBtn">
+                        TURN OFF
+                    </button>
+                </div>
+                
+                <div class="pump-info">
+                    <div class="info-item">
+                        <span>Last Command:</span>
+                        <span id="fertilizerLastCommand">--</span>
+                    </div>
+                    <div class="info-item">
+                        <span>Last Updated:</span>
+                        <span id="fertilizerLastUpdated">--</span>
+                    </div>
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Credit / Seeds Section -->
-        <div id="credits" class="credit-section">
-            <div class="credit-balance">
-                <h3><i class="fas fa-seedling"></i> Your Credits Balance</h3>
-                <div class="balance-amount" id="seedBalance">0 <span>Credits</span></div>
-                <p style="font-size: 0.8rem; margin-top: 8px;">1 Credit = RM1 • Use Credits to unlock courses</p>
-            </div>
-            <h2 style="font-size: 1.8rem;">🌱 Buy Credits</h2>
-            <p>Purchase credits to unlock courses. One-time payment, lifetime access to each course.</p>
-            <div class="credit-packs">
-                <div class="credit-pack" data-seeds="10" data-price="10">
-                    <div class="seed-icon">🌱</div>
-                    <div class="seeds-amount">10 Credits</div>
-                    <div class="price">RM <span>10</span></div>
-                </div>
-                <div class="credit-pack" data-seeds="25" data-price="25">
-                    <div class="seed-icon">🌱🌱</div>
-                    <div class="seeds-amount">25 Credits</div>
-                    <div class="price">RM <span>25</span></div>
-                </div>
-                <div class="credit-pack" data-seeds="50" data-price="48">
-                    <div class="seed-icon">🌱🌱🌱</div>
-                    <div class="seeds-amount">50 Credits</div>
-                    <div class="price">RM <span>48</span> <span style="font-size:0.7rem;">(save RM2)</span></div>
-                </div>
-                <div class="credit-pack" data-seeds="100" data-price="90">
-                    <div class="seed-icon">🌱🌱🌱🌱🌱</div>
-                    <div class="seeds-amount">100 Credits</div>
-                    <div class="price">RM <span>90</span> <span style="font-size:0.7rem;">(save RM10)</span></div>
-                </div>
-            </div>
-            <p style="font-size: 0.8rem; opacity: 0.8; margin-top: 16px;">✓ Instant delivery • Use Credits to unlock any course</p>
+    <!-- ===== HISTORY PAGE ===== -->
+    <div id="historyPage" class="page">
+        <div class="page-header">
+            <button onclick="goBackToMenu()" class="back-btn">← Back to Menu</button>
+            <h2>📈 Historical Data</h2>
+            <p style="font-size: 14px;">Device: <span id="historyDeviceName" style="font-weight: bold;">--</span></p>
         </div>
 
-        <!-- Search & Filter Bar -->
-        <div class="search-filter-bar">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" id="searchInput" placeholder="Search courses...">
+        <div class="chart-controls">
+            <div class="control-group">
+                <label for="chartType">Chart Type:</label>
+                <select id="chartType" onchange="updateCharts()">
+                    <option value="line">Line Chart</option>
+                    <option value="bar">Bar Chart</option>
+                </select>
             </div>
-        </div>
-
-        <!-- Dynamic Courses Section -->
-        <div id="vegetables">
-            <div class="section-title">Choose Your Course</div>
-            <div id="coursesLoading" style="text-align: center; padding: 60px;">
-                <div class="loading-spinner"></div>
-                <p style="margin-top: 16px;">Loading courses...</p>
+            
+            <div class="control-group">
+                <label for="dataPoints">Data Points:</label>
+                <select id="dataPoints" onchange="loadHistoricalData()">
+                    <option value="20">Last 20</option>
+                    <option value="50">Last 50</option>
+                    <option value="100">Last 100</option>
+                    <option value="all">All</option>
+                </select>
             </div>
-            <div class="course-grid" id="courseGrid" style="display: none;"></div>
-            <div id="noResults" class="no-results" style="display: none;">No courses found matching your search.</div>
+            
+            <div class="control-group">
+                <label for="metricSelect">Metric:</label>
+                <select id="metricSelect" onchange="updateCharts()">
+                    <option value="nitrogen">Nitrogen (N)</option>
+                    <option value="phosphorus">Phosphorus (P)</option>
+                    <option value="potassium">Potassium (K)</option>
+                    <option value="temperature">Temperature</option>
+                    <option value="ec">Conductivity (EC)</option>
+                    <option value="moisture">Moisture</option>
+                </select>
+            </div>
+            
+            <button onclick="loadHistoricalData()" class="btn-refresh">🔄 Refresh</button>
+            <button onclick="exportHistoricalData()" class="btn-export">📥 Export CSV</button>
         </div>
-
-        <!-- Testimonials Section -->
-        <div id="testimonials" class="testimonials">
-            <div class="section-title">💬 What Our Farmers Say</div>
-            <div class="testi-grid">
-                <div class="testi">
-                    <i class="fas fa-quote-left"></i>
-                    <p>“I bought Credits and unlocked the Chili course. Now I'm harvesting my own chilies and selling at the local market!”</p>
-                    <div class="user">— Sarah, Selangor</div>
+        
+        <div class="charts-container">
+            <div class="chart-card">
+                <h3>NPK Nutrients</h3>
+                <div class="chart-wrapper">
+                    <canvas id="npkChart"></canvas>
                 </div>
-                <div class="testi">
-                    <i class="fas fa-quote-left"></i>
-                    <p>“The Cili Padi course taught me everything. My sambal is now famous in the village!”</p>
-                    <div class="user">— Ahmad, Kuala Lumpur</div>
-                </div>
-                <div class="testi">
-                    <i class="fas fa-quote-left"></i>
-                    <p>“Finally, a platform that teaches mango grafting properly. My trees are producing after 2 years!”</p>
-                    <div class="user">— Mei Ling, Penang</div>
+            </div>
+            
+            <div class="chart-card">
+                <h3>Environmental Data</h3>
+                <div class="chart-wrapper">
+                    <canvas id="environmentChart"></canvas>
                 </div>
             </div>
         </div>
         
-        <!-- CTA Section -->
-        <div style="background: linear-gradient(135deg, #1f4f21, #2d6a2f); border-radius: 48px; padding: 48px 40px; text-align: center; color: white; margin: 60px 0;">
-            <h2 style="font-size: 2rem; margin-bottom: 16px;">Ready to Start Your Farming Journey?</h2>
-            <p style="margin-bottom: 24px; opacity: 0.9;">Join thousands of farmers who are growing their own food.</p>
-            <button id="ctaSubscribeBtn" class="cta-button">Get Started →</button>
-        </div>
-    </div>
-</main>
-
-<footer>
-    <div class="container">
-        <div class="footer-content">
-            <div class="footer-logo"><i class="fas fa-seedling"></i> My FarmAgro</div>
-            <div class="social-icons">
-                <a href="https://www.youtube.com/watch?v=b2wUL6D5IgQ" target="_blank"><i class="fab fa-youtube"></i></a>
-                <a href="https://www.instagram.com/petanimuda_my/" target="_blank"><i class="fab fa-instagram"></i></a>
-                <a href="#"><i class="fab fa-twitter"></i></a>
-                <a href="#"><i class="fab fa-facebook"></i></a>
-            </div>
-            <div class="copyright"><p>© 2025 My FarmAgro — Cultivate knowledge, grow your future.</p></div>
-        </div>
-    </div>
-</footer>
-
-<!-- Modals -->
-<div id="buySeedsModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
-    <div style="background: white; max-width: 400px; width: 90%; border-radius: 48px; padding: 32px; text-align: center;">
-        <i class="fas fa-seedling" style="font-size: 3rem; color: #3f8845;"></i>
-        <h3 id="modalSeedsAmount" style="margin: 16px 0;">Buy Credits</h3>
-        <p id="modalSeedsPrice" style="margin-bottom: 16px;">RM0</p>
-        <button id="confirmBuySeedsBtn" class="buy-credits-btn" style="background: #2d6a2f; color: white; border: none; padding: 14px 28px; border-radius: 40px; font-weight: 700; width: 100%; cursor: pointer;">Confirm Purchase →</button>
-        <button id="closeBuySeedsModal" style="background: none; border: none; color: #888; margin-top: 16px; cursor: pointer;">Cancel</button>
-    </div>
-</div>
-
-<div id="insufficientModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
-    <div style="background: white; max-width: 400px; width: 90%; border-radius: 48px; padding: 32px; text-align: center;">
-        <i class="fas fa-exclamation-triangle" style="font-size: 3rem; color: #f5b642;"></i>
-        <h3 style="margin: 16px 0;">Insufficient Credits</h3>
-        <p id="insufficientMessage" style="margin-bottom: 16px;">You need more Credits to unlock this course.</p>
-        <button id="closeInsufficientModal" style="background: #2d6a2f; color: white; border: none; padding: 12px 28px; border-radius: 40px; cursor: pointer;">Buy Credits</button>
-    </div>
-</div>
-
-<div id="accountModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1000;">
-    <div style="background: white; max-width: 500px; width: 90%; border-radius: 48px; padding: 32px; max-height: 85vh; overflow-y: auto;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <h2 style="color: #2d6a2f;"><i class="fas fa-user-circle"></i> My Account</h2>
-            <button id="closeAccountModal" style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
-        </div>
-        <div class="account-profile">
-            <div class="profile-avatar" id="profileAvatar"><i class="fas fa-user"></i></div>
-            <div class="profile-info">
-                <h4 id="profileName">-</h4>
-                <p><i class="fas fa-envelope"></i> <span id="profileEmail">-</span></p>
-                <p><i class="fas fa-calendar-alt"></i> Member since <span id="memberSince">-</span></p>
+        <div class="data-table-container">
+            <h3>Raw Data (Most Recent 20)</h3>
+            <div class="table-wrapper">
+                <table id="historyTable" style="font-size: 12px;">
+                    <thead>
+                        <tr>
+                            <th style="min-width: 70px;">Time</th>
+                            <th style="min-width: 60px;">N</th>
+                            <th style="min-width: 60px;">P</th>
+                            <th style="min-width: 60px;">K</th>
+                            <th style="min-width: 60px;">Temp</th>
+                            <th style="min-width: 60px;">EC</th>
+                            <th style="min-width: 70px;">Moisture</th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyTableBody">
+                        <tr>
+                            <td colspan="7" class="no-data">No historical data available</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
-        <div class="stat-grid">
-            <div class="stat-card"><i class="fas fa-seedling"></i><div class="stat-value" id="accountSeedsBalance">0</div><div class="stat-label">Credits</div></div>
-            <div class="stat-card"><i class="fas fa-book-open"></i><div class="stat-value" id="accountCoursesOwned">0</div><div class="stat-label">Courses Owned</div></div>
-            <div class="stat-card"><i class="fas fa-coins"></i><div class="stat-value" id="totalSpent">RM0</div><div class="stat-label">Total Spent</div></div>
-            <div class="stat-card"><i class="fas fa-trophy"></i><div class="stat-value" id="completedLessons">0</div><div class="stat-label">Lessons Completed</div></div>
-        </div>
-        <h3 style="font-size: 1.1rem; margin-bottom: 12px;"><i class="fas fa-check-circle" style="color: #2d6a2f;"></i> My Courses</h3>
-        <div id="subscriptionList" class="subscription-list"></div>
-        <h3 style="font-size: 1.1rem; margin: 16px 0 12px;"><i class="fas fa-history"></i> Transaction History</h3>
-        <div id="transactionList" class="transaction-list"></div>
-        <button id="editProfileBtn" class="edit-profile-btn"><i class="fas fa-edit"></i> Edit Profile</button>
     </div>
-</div>
-
-<div id="editProfileModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); align-items: center; justify-content: center; z-index: 1001;">
-    <div style="background: white; max-width: 400px; width: 90%; border-radius: 48px; padding: 32px;">
-        <h3 style="margin-bottom: 20px;">Edit Profile</h3>
-        <input type="text" id="editName" placeholder="Full Name" style="width: 100%; padding: 12px; border-radius: 40px; border: 1px solid #ddd; margin-bottom: 12px;">
-        <p style="font-size: 0.7rem; color: #8ba07e; margin-top: -8px; margin-bottom: 16px;">Email cannot be changed. Contact support if needed.</p>
-        <div style="display: flex; gap: 12px; margin-top: 20px;">
-            <button id="saveProfileBtn" style="background: #2d6a2f; color: white; border: none; padding: 12px; border-radius: 40px; flex: 1; cursor: pointer;">Save Changes</button>
-            <button id="closeEditModal" style="background: #ccc; color: #333; border: none; padding: 12px; border-radius: 40px; flex: 1; cursor: pointer;">Cancel</button>
-        </div>
-    </div>
-</div>
-
-<!-- EmailJS -->
-<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
-<script>
-    (function(){
-        emailjs.init({
-            publicKey: "bDahuu_rYnIhtWtsH",
-        });
-    })();
-</script>
-
-<!-- Firebase SDK -->
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.7.0/firebase-firestore-compat.js"></script>
-<script src="firebase-config.js"></script>
-
-<!-- Main App JavaScript -->
-<script src="app.js"></script>
-
+    
+    <!-- ===== EXTERNAL JAVASCRIPT FILES ===== -->
+    <!-- IMPORTANT: Load scripts in the correct order -->
+    <script src="firebase-config.js"></script>
+    <script src="script.js"></script>
 </body>
 </html>
